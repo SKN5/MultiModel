@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MultiModel - a multi-model AI chat app powered by Puter.js">
+  <title>MultiModel</title>
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --panel: #11151a;
+      --panel-2: #171c22;
+      --border: #272e36;
+      --text: #f2f4f7;
+      --muted: #9ba5b1;
+      --accent: #7c5cff;
+      --accent-2: #6847f0;
+      --danger: #ef6b73;
+      --user: #202631;
+      --assistant: #14191f;
+      --shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(124,92,255,.13), transparent 35%),
+        radial-gradient(circle at 100% 100%, rgba(78,164,255,.08), transparent 35%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, select, textarea { font: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: rgba(12,15,19,.88);
+      backdrop-filter: blur(18px);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -.4px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), #4e9dff);
+      box-shadow: 0 8px 30px rgba(124,92,255,.3);
+    }
+
+    .new-chat, .small-button, .send-button {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--panel-2);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    .new-chat {
+      width: 100%;
+      padding: 11px 13px;
+      text-align: left;
+    }
+
+    .new-chat:hover, .small-button:hover {
+      border-color: #3a4350;
+      background: #1c222a;
+    }
+
+    .section-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin: 4px 2px;
+    }
+
+    .chat-list {
+      overflow: auto;
+      flex: 1;
+    }
+
+    .chat-item {
+      padding: 10px 11px;
+      border-radius: 9px;
+      color: #c9d0d8;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+
+    .chat-item.active { background: #191f27; color: white; }
+
+    .sidebar-footer {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 66px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 22px;
+      background: rgba(11,13,16,.72);
+      backdrop-filter: blur(18px);
+    }
+
+    .model-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .model-select {
+      min-width: 250px;
+      max-width: 480px;
+      padding: 9px 12px;
+      color: var(--text);
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .content {
+      flex: 1;
+      width: min(900px, 100%);
+      margin: 0 auto;
+      padding: 34px 20px 145px;
+    }
+
+    .welcome {
+      min-height: 52vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .welcome-inner { max-width: 700px; }
+
+    .welcome h1 {
+      margin: 0 0 10px;
+      font-size: clamp(34px, 6vw, 58px);
+      letter-spacing: -2px;
+    }
+
+    .welcome p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 0 auto;
+      max-width: 600px;
+    }
+
+    .model-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: #cbd2da;
+      background: rgba(255,255,255,.025);
+      font-size: 12px;
+    }
+
+    .messages {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .message {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+    }
+
+    .avatar {
+      flex: 0 0 31px;
+      height: 31px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+    }
+
+    .message.user .avatar {
+      background: #292f39;
+    }
+
+    .bubble {
+      min-width: 0;
+      max-width: calc(100% - 45px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .message.user .bubble {
+      background: var(--user);
+    }
+
+    .message.assistant .bubble {
+      background: var(--assistant);
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .composer-wrap {
+      position: fixed;
+      left: 270px;
+      right: 0;
+      bottom: 0;
+      padding: 18px 20px 20px;
+      background: linear-gradient(transparent, rgba(11,13,16,.96) 30%);
+    }
+
+    .composer {
+      width: min(900px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      gap: 9px;
+      padding: 8px;
+      border: 1px solid #303844;
+      border-radius: 15px;
+      background: rgba(17,21,26,.96);
+      box-shadow: var(--shadow);
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 44px;
+      max-height: 180px;
+      resize: none;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 10px 11px;
+      line-height: 1.5;
+    }
+
+    textarea::placeholder { color: #697482; }
+
+    .send-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      border-color: transparent;
+      font-weight: 800;
+    }
+
+    .send-button:hover { background: var(--accent-2); }
+    .send-button:disabled { opacity: .45; cursor: not-allowed; }
+
+    .error {
+      color: #ff9aa0;
+      background: rgba(239,107,115,.08);
+      border: 1px solid rgba(239,107,115,.25);
+    }
+
+    .typing {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      min-height: 20px;
+    }
+
+    .typing span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #8c96a3;
+      animation: pulse 1s infinite;
+    }
+
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: .3; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-2px); }
+    }
+
+    @media (max-width: 760px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .topbar { padding: 0 12px; }
+      .model-select { min-width: 0; width: min(60vw, 300px); }
+      .composer-wrap { left: 0; padding: 12px; }
+      .content { padding-left: 12px; padding-right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <span>MultiModel</span>
+      </div>
+
+      <button class="new-chat" id="newChat">＋ New chat</button>
+
+      <div class="section-label">Chats</div>
+      <div class="chat-list" id="chatList"></div>
+
+      <div class="sidebar-footer">
+        AI requests are powered by Puter.js. Model availability and limits are controlled by Puter and the selected provider.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="model-area">
+          <select class="model-select" id="modelSelect" aria-label="Select AI model">
+            <option>Loading models…</option>
+          </select>
+          <span class="status" id="status">Connecting…</span>
+        </div>
+        <button class="small-button" id="clearChat" title="Clear current chat">Clear</button>
+      </header>
+
+      <section class="content">
+        <div class="welcome" id="welcome">
+          <div class="welcome-inner">
+            <h1>Ask any model.</h1>
+            <p>
+              One chat interface for models from multiple AI providers, powered by Puter.js.
+              Pick a model above and start chatting.
+            </p>
+            <div class="model-chips" id="modelChips"></div>
+          </div>
+        </div>
+
+        <div class="messages" id="messages"></div>
+      </section>
+
+      <div class="composer-wrap">
+        <form class="composer" id="composer">
+          <textarea id="input" rows="1" placeholder="Message the selected model…" autocomplete="off"></textarea>
+          <button class="send-button" id="send" type="submit" aria-label="Send">↑</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      models: [],
+      messages: [],
+      selectedModel: localStorage.getItem("multimodel-model") || "",
+      busy: false,
+      chats: JSON.parse(localStorage.getItem("multimodel-chats") || "[]")
+    };
+
+    const els = {
+      modelSelect: document.getElementById("modelSelect"),
+      modelChips: document.getElementById("modelChips"),
+      status: document.getElementById("status"),
+      welcome: document.getElementById("welcome"),
+      messages: document.getElementById("messages"),
+      input: document.getElementById("input"),
+      send: document.getElementById("send"),
+      composer: document.getElementById("composer"),
+      newChat: document.getElementById("newChat"),
+      clearChat: document.getElementById("clearChat"),
+      chatList: document.getElementById("chatList")
+    };
+
+    const fallbackModels = [
+      { id: "gpt-5.6-luna", name: "GPT-5.6 Luna", provider: "OpenAI" },
+      { id: "claude-sonnet-5", name: "Claude Sonnet 5", provider: "Anthropic" },
+      { id: "gemini-3.1-flash", name: "Gemini 3.1 Flash", provider: "Google" },
+      { id: "grok-4", name: "Grok 4", provider: "xAI" }
+    ];
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getModelName(model) {
+      return model.name || model.id;
+    }
+
+    function renderModels() {
+      els.modelSelect.innerHTML = "";
+
+      if (!state.models.length) {
+        els.modelSelect.innerHTML = '<option value="">No models available</option>';
+        return;
+      }
+
+      const groups = new Map();
+      for (const model of state.models) {
+        const provider = model.provider || "Other";
+        if (!groups.has(provider)) groups.set(provider, []);
+        groups.get(provider).push(model);
+      }
+
+      for (const [provider, models] of [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+        const group = document.createElement("optgroup");
+        group.label = provider;
+        models
+          .sort((a, b) => getModelName(a).localeCompare(getModelName(b)))
+          .forEach(model => {
+            const option = document.createElement("option");
+            option.value = model.id;
+            option.textContent = getModelName(model);
+            group.appendChild(option);
+          });
+        els.modelSelect.appendChild(group);
+      }
+
+      const available = state.models.some(m => m.id === state.selectedModel);
+      if (!available) state.selectedModel = state.models[0].id;
+
+      els.modelSelect.value = state.selectedModel;
+      localStorage.setItem("multimodel-model", state.selectedModel);
+
+      const featured = state.models
+        .filter(m => /gpt|claude|gemini|grok|deepseek|mistral/i.test(getModelName(m)))
+        .slice(0, 8);
+
+      els.modelChips.innerHTML = featured
+        .map(m => '<span class="chip">' + escapeHtml(getModelName(m)) + '</span>')
+        .join("");
+    }
+
+    async function loadModels() {
+      try {
+        state.models = await puter.ai.listModels();
+        if (!Array.isArray(state.models) || !state.models.length) throw new Error("No models returned");
+        renderModels();
+        els.status.textContent = state.models.length + " models available";
+      } catch (error) {
+        console.error(error);
+        state.models = fallbackModels;
+        renderModels();
+        els.status.textContent = "Using fallback model list";
+      }
+    }
+
+    function renderMessages() {
+      els.welcome.style.display = state.messages.length ? "none" : "grid";
+      els.messages.innerHTML = state.messages.map(message => {
+        const roleLabel = message.role === "user" ? "You" : (message.modelName || "AI");
+        const avatar = message.role === "user" ? "Y" : "AI";
+        return `
+          <article class="message ${message.role}">
+            <div class="avatar">${avatar}</div>
+            <div class="bubble">
+              <div class="meta">${escapeHtml(roleLabel)}</div>
+              <div>${escapeHtml(message.content)}</div>
+            </div>
+          </article>
+        `;
+      }).join("");
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+
+    function saveChat() {
+      if (!state.messages.length) return;
+      const first = state.messages.find(m => m.role === "user");
+      const title = first ? first.content.slice(0, 48) : "New chat";
+      state.chats.unshift({
+        title,
+        messages: state.messages,
+        updated: Date.now()
+      });
+      state.chats = state.chats.slice(0, 20);
+      localStorage.setItem("multimodel-chats", JSON.stringify(state.chats));
+      renderChatList();
+    }
+
+    function renderChatList() {
+      els.chatList.innerHTML = state.chats
+        .sort((a, b) => b.updated - a.updated)
+        .map((chat, index) => `
+          <div class="chat-item" data-index="${index}" title="${escapeHtml(chat.title)}">
+            ${escapeHtml(chat.title)}
+          </div>
+        `).join("");
+    }
+
+    function resetChat() {
+      state.messages = [];
+      renderMessages();
+      els.input.value = "";
+      els.input.focus();
+    }
+
+    async function sendMessage(text) {
+      if (state.busy || !text.trim()) return;
+
+      const modelId = els.modelSelect.value;
+      if (!modelId) {
+        alert("Please select a model first.");
+        return;
+      }
+
+      state.busy = true;
+      els.send.disabled = true;
+      els.input.disabled = true;
+      els.status.textContent = "Thinking…";
+
+      const model = state.models.find(m => m.id === modelId);
+      const modelName = model ? getModelName(model) : modelId;
+
+      state.messages.push({
+        role: "user",
+        content: text.trim()
+      });
+      renderMessages();
+
+      const loading = document.createElement("article");
+      loading.className = "message assistant";
+      loading.id = "loadingMessage";
+      loading.innerHTML = `
+        <div class="avatar">AI</div>
+        <div class="bubble">
+          <div class="meta">${escapeHtml(modelName)}</div>
+          <div class="typing"><span></span><span></span><span></span></div>
+        </div>
+      `;
+      els.messages.appendChild(loading);
+
+      try {
+        const apiMessages = state.messages.map(m => ({
+          role: m.role,
+          content: m.content
+        }));
+
+        const response = await puter.ai.chat(apiMessages, {
+          model: modelId,
+          stream: true,
+          normalize: true
+        });
+
+        let answer = "";
+        const bubble = loading.querySelector(".bubble");
+        bubble.innerHTML = '<div class="meta">' + escapeHtml(modelName) + '</div><div id="streamText"></div>';
+        const streamText = bubble.querySelector("#streamText");
+
+        for await (const part of response) {
+          if (part.type === "text" || typeof part.text === "string") {
+            answer += part.text;
+            streamText.textContent = answer;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+          } else if (part.type === "error") {
+            throw new Error(part.message || "The model returned an error.");
+          }
+        }
+
+        if (!answer.trim()) {
+          answer = "The model returned an empty response.";
+        }
+
+        state.messages.push({
+          role: "assistant",
+          content: answer,
+          modelName
+        });
+
+        loading.remove();
+        renderMessages();
+
+        localStorage.setItem("multimodel-current-chat", JSON.stringify(state.messages));
+      } catch (error) {
+        console.error(error);
+        loading.querySelector(".bubble").innerHTML =
+          '<div class="meta">Error</div><div class="error">' +
+          escapeHtml(error.message || String(error)) +
+          '</div>';
+      } finally {
+        state.busy = false;
+        els.send.disabled = false;
+        els.input.disabled = false;
+        els.status.textContent = state.models.length + " models available";
+        els.input.focus();
+      }
+    }
+
+    els.modelSelect.addEventListener("change", () => {
+      state.selectedModel = els.modelSelect.value;
+      localStorage.setItem("multimodel-model", state.selectedModel);
+    });
+
+    els.composer.addEventListener("submit", event => {
+      event.preventDefault();
+      const text = els.input.value;
+      els.input.value = "";
+      els.input.style.height = "auto";
+      sendMessage(text);
+    });
+
+    els.input.addEventListener("input", () => {
+      els.input.style.height = "auto";
+      els.input.style.height = Math.min(els.input.scrollHeight, 180) + "px";
+    });
+
+    els.input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        els.composer.requestSubmit();
+      }
+    });
+
+    els.newChat.addEventListener("click", () => {
+      if (state.messages.length) saveChat();
+      resetChat();
+    });
+
+    els.clearChat.addEventListener("click", () => {
+      if (!state.messages.length) return;
+      if (confirm("Clear this chat?")) resetChat();
+    });
+
+    els.chatList.addEventListener("click", event => {
+      const item = event.target.closest(".chat-item");
+      if (!item) return;
+      const chat = state.chats[Number(item.dataset.index)];
+      if (!chat) return;
+      state.messages = chat.messages || [];
+      renderMessages();
+    });
+
+    renderChatList();
+    renderMessages();
+    loadModels();
+  </script>
+</body>
+</html>
