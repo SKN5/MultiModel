@@ -136,8 +136,13 @@ function saveCurrent(){if(!state.messages.length)return;const u=state.messages.f
 function renderChats(){$("chatList").innerHTML=state.chats.sort((a,b)=>b.updated-a.updated).map((c,i)=>'<div class="chat" data-i="'+i+'">'+esc(c.title)+"</div>").join("")}
 function reset(){state.messages=[];state.files=[];$("fileName").textContent="";render();$("input").focus()}
 function options(){
- const o={model:state.selected,stream:true,normalize:true,temperature:Number(state.settings.temperature)};
- if(state.settings.maxTokens)o.max_tokens=Number(state.settings.maxTokens);if(state.settings.reasoning)o.reasoning_effort=state.settings.reasoning;return o
+ const o={model:state.selected,stream:true,normalize:true};
+ // Only send optional controls when the user explicitly changes them.
+ // Some models reject generation parameters that are not supported by that model.
+ if(Number(state.settings.temperature)!==0.7)o.temperature=Number(state.settings.temperature);
+ if(state.settings.maxTokens)o.max_tokens=Number(state.settings.maxTokens);
+ if(state.settings.reasoning)o.reasoning_effort=state.settings.reasoning;
+ return o
 }
 async function send(text){
  if(state.busy||!text.trim()||!state.selected)return;
