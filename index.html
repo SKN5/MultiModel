@@ -150,11 +150,25 @@ async function send(text){
  const model=state.models.find(m=>m.id===state.selected);const mn=model?name(model):state.selected;
  const uploaded=[];let mediaFiles=state.files;
  try{
-  if(mediaFiles.length){const results=await puter.fs.upload(mediaFiles,"uploads",{dedupeName:true});const arr=Array.isArray(results)?results:[results];arr.forEach(x=>uploaded.push(x.path))}
+  if(mediaFiles.length){
+    const results=await puter.fs.upload(mediaFiles,"uploads",{dedupeName:true,createMissingParents:true});
+    const arr=Array.isArray(results)?results:[results];
+    arr.forEach(x=>{if(x?.path)uploaded.push(x.path);else throw new Error("File upload completed but Puter did not return a file path.")});
+  }
   state.messages.push({role:"user",content:text.trim(),files:state.files.map(f=>f.name)});render();
   const load=document.createElement("article");load.className="message assistant";load.innerHTML='<div class="avatar">AI</div><div class="bubble"><div class="meta">'+esc(mn)+" "+badge(model||{})+'</div><div class="typing"><i></i><i></i><i></i></div></div>';$("messages").append(load);
   const messages=state.messages.map(m=>({role:m.role,content:m.content}));
-  if(uploaded.length){messages[messages.length-1].content=[...uploaded.map(path=>({type:"file",puter_path:path})),{type:"text",text:text.trim()}]}
+  if(uploaded.length){
+    // File context is attached only to the current user turn.
+    // Previous turns stay plain text so later messages remain normal chat requests.
+    messages[messages.length-1]={
+      role:"user",
+      content:[
+        ...uploaded.map(path=>({type:"file",puter_path:path})),
+        {type:"text",text:text.trim()}
+      ]
+    };
+  }
   const res=await puter.ai.chat(messages,options());let answer="",images=[];const bub=load.querySelector(".bubble");bub.innerHTML='<div class="meta">'+esc(mn)+" "+badge(model||{})+'</div><div id="stream"></div>';
   const stream=bub.querySelector("#stream");
   for await(const part of res){if(typeof part?.text==="string"){answer+=part.text;stream.replaceChildren(md(answer))}if(part?.image?.image_url?.url){images.push(part.image.image_url.url);const im=document.createElement("img");im.className="ai-image";im.src=part.image.image_url.url;stream.append(im)}scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}
