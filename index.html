@@ -200,8 +200,42 @@ $("runCompare").onclick=async()=>{
  const results=await Promise.all(ids.map(async id=>{const m=state.models.find(x=>x.id===id);try{const r=await puter.ai.chat(prompt,{model:id,stream:false,normalize:true,temperature:Number(state.settings.temperature)});const text=r?.message?.content??r?.text??String(r);return {m,text}}catch(e){return {m,text:"Error: "+(e.message||e)}}}));
  $("compareResults").innerHTML='<div class="compare-grid">'+results.map(x=>'<div class="compare-card"><h3>'+esc(name(x.m))+" "+badge(x.m)+'</h3><div class="markdown"></div></div>').join("")+"</div>";[...$("compareResults .markdown")].forEach((el,i)=>el.replaceWith(md(results[i].text)));
 };
-$("imageBtn").onclick=async()=>{open("imageOverlay");$("imageModel").innerHTML='<option value="">Auto</option>';try{const r=await puter.drivers.call("puter-image-generation","models",{});(r.result||[]).slice(0,60).forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=m.id+" ("+(m.provider||"provider")+")";$("imageModel").append(o)})}catch(e){}};
-$("generateImage").onclick=async()=>{const p=$("imagePrompt").value.trim();if(!p)return;const btn=$("generateImage");btn.disabled=true;btn.textContent="Generating…";$("imageResult").innerHTML="";try{const id=$("imageModel").value;const img=await puter.ai.txt2img(p,id?{model:id}:{ });img.className="ai-image";$("imageResult").append(img);const dl=document.createElement("a");dl.textContent="Open image";dl.href=img.src;dl.target="_blank";dl.style.color="#ad9eff";$("imageResult").append(document.createElement("br"),dl)}catch(e){$("imageResult").innerHTML='<div class="danger">'+esc(e.message||String(e))+"</div>"}finally{btn.disabled=false;btn.textContent="Generate"}};
+const imageCatalog=[
+ {id:"gpt-image-2",label:"OpenAI — GPT Image 2"},
+ {id:"gpt-image-2.5-sunburst",label:"OpenAI — GPT Image 2.5 Sunburst"},
+ {id:"gpt-image-2.5-flare",label:"OpenAI — GPT Image 2.5 Flare"},
+ {id:"gemini-3.1-flash-image",label:"Google — Gemini 3.1 Flash Image"},
+ {id:"gemini-3-pro-image",label:"Google — Gemini 3 Pro Image"},
+ {id:"grok-imagine-image",label:"xAI — Grok Imagine Image"},
+ {id:"grok-imagine-image-2.0",label:"xAI — Grok Imagine Image 2.0"},
+ {id:"@cf/black-forest-labs/flux-1-schnell",label:"Cloudflare — FLUX.1 Schnell"},
+ {id:"black-forest-labs/flux-schnell",label:"Replicate — FLUX Schnell"},
+ {id:"seedream-5-0-lite-260128",label:"BytePlus — Seedream 5.0 Lite"}
+];
+function populateImageModels(){
+ const sel=$("imageModel");sel.innerHTML="";
+ const auto=document.createElement("option");auto.value="";auto.textContent="Auto (recommended)";sel.appendChild(auto);
+ imageCatalog.forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=m.label;sel.appendChild(o)});
+}
+$("imageBtn").onclick=()=>{open("imageOverlay");populateImageModels();$("imageResult").innerHTML=""};
+$("generateImage").onclick=async()=>{
+ const p=$("imagePrompt").value.trim();if(!p)return;
+ const btn=$("generateImage");btn.disabled=true;btn.textContent="Generating…";$("imageResult").innerHTML='<div style="color:var(--muted)">Generating image…</div>';
+ try{
+   const id=$("imageModel").value;
+   const opts=id?{model:id,quality:"medium",ratio:{w:1,h:1}}:{quality:"medium",ratio:{w:1,h:1}};
+   const img=await puter.ai.txt2img(p,opts);
+   img.className="ai-image";img.alt="AI-generated image";
+   $("imageResult").replaceChildren(img);
+   const dl=document.createElement("a");dl.textContent="Open image in new tab";dl.href=img.src;dl.target="_blank";dl.rel="noopener noreferrer";dl.style.color="#ad9eff";
+   $("imageResult").append(document.createElement("br"),dl);
+ }catch(e){
+   console.error("Image generation error:",e);
+   const msg=e?.message||e?.error?.message||String(e);
+   const code=e?.errorCode||e?.code||"";
+   $("imageResult").innerHTML='<div class="danger"><b>Image generation failed</b><br>'+esc(msg)+(code?'<br><small>Error: '+esc(code)+"</small>":"")+"</div>";
+ }finally{btn.disabled=false;btn.textContent="Generate"}
+};
 renderChats();render();loadModels();
 </script>
 </body>
