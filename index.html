@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="MultiModel - advanced multi-provider AI workspace">
+<meta name="description" content="MultiModel — a clean multi-model AI chat workspace powered by Puter.js">
 <title>MultiModel</title>
 <script src="https://js.puter.com/v2/"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
@@ -11,232 +11,406 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/highlight.min.js"></script>
 <style>
-:root{color-scheme:dark;--bg:#090b0e;--panel:#101419;--panel2:#171c22;--border:#28303a;--text:#f4f6f8;--muted:#929daa;--accent:#7c5cff;--accent2:#6245e8;--danger:#f07178;--ok:#65d69a;--user:#202630;--assistant:#12171d;--shadow:0 20px 70px #0008}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0,#7c5cff18,transparent 35%),radial-gradient(circle at 100% 100%,#4e9dff0d,transparent 35%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,select,textarea,input{font:inherit}button{cursor:pointer}
-.app{min-height:100vh;display:grid;grid-template-columns:270px 1fr}.sidebar{border-right:1px solid var(--border);background:#0c0f13e8;backdrop-filter:blur(18px);padding:18px;display:flex;flex-direction:column;gap:14px}.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px}.mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#7c5cff,#4e9dff);font-weight:900}.new-chat,.small-btn,.tool-btn,.send{border:1px solid var(--border);color:var(--text);background:var(--panel2);border-radius:10px}.new-chat{width:100%;padding:11px;text-align:left}.new-chat:hover,.small-btn:hover,.tool-btn:hover{background:#1d242d;border-color:#3b4653}.label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:4px 2px}.chat-list{overflow:auto;flex:1}.chat{padding:9px 10px;border-radius:8px;color:#cbd2da;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}.chat:hover,.chat.active{background:#191f27;color:#fff}.footer{font-size:11px;line-height:1.5;color:var(--muted)}
-.main{min-width:0;display:flex;flex-direction:column;min-height:100vh}.top{height:66px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 20px;background:#0b0d10c7;backdrop-filter:blur(18px)}.model-select{min-width:260px;max-width:420px;padding:9px 12px;background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:10px}.status{font-size:11px;color:var(--muted);white-space:nowrap}.top-spacer{flex:1}.small-btn{padding:8px 10px;font-size:12px}.content{width:min(960px,100%);margin:auto;padding:30px 20px 160px;flex:1}.welcome{min-height:52vh;display:grid;place-items:center;text-align:center}.welcome h1{font-size:clamp(35px,6vw,58px);letter-spacing:-2px;margin:0 0 10px}.welcome p{max-width:650px;color:var(--muted);line-height:1.6;margin:auto}.chips{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin-top:20px}.chip{padding:6px 9px;border:1px solid var(--border);border-radius:999px;color:#c9d0d8;font-size:11px}
-.messages{display:flex;flex-direction:column;gap:18px}.message{display:flex;gap:10px;align-items:flex-start}.avatar{flex:0 0 31px;height:31px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);display:grid;place-items:center;font-size:11px;font-weight:800}.bubble{min-width:0;max-width:calc(100% - 43px);border:1px solid var(--border);border-radius:14px;padding:12px 14px;line-height:1.6;overflow-wrap:anywhere}.user .bubble{background:var(--user)}.assistant .bubble{background:var(--assistant)}.meta{font-size:10px;color:var(--muted);margin-bottom:5px;display:flex;align-items:center;gap:7px}.badge{border:1px solid #ffffff18;border-radius:999px;padding:1px 6px;font-size:9px}.verified{color:var(--ok);border-color:#65d69a44}.claimed{color:#e7c86a}.unknown{color:#f08a8f}
-.composer-wrap{position:fixed;left:270px;right:0;bottom:0;padding:15px 20px 20px;background:linear-gradient(transparent,#090b0ef5 30%)}.composer{width:min(960px,100%);margin:auto;border:1px solid #303844;border-radius:15px;background:#11151af5;box-shadow:var(--shadow);padding:8px}.tools{display:flex;gap:6px;align-items:center;padding:0 5px 5px}.tool-btn{padding:5px 8px;font-size:11px}.file-name{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.composer-row{display:flex;align-items:flex-end;gap:8px}textarea{flex:1;min-height:44px;max-height:180px;resize:none;border:0;outline:0;background:transparent;color:var(--text);padding:10px;line-height:1.5}.send{width:42px;height:42px;background:var(--accent);border-color:transparent;font-weight:900}.send:hover{background:var(--accent2)}.send:disabled{opacity:.4}
-.markdown{font-size:15px}.markdown>:first-child{margin-top:0}.markdown>:last-child{margin-bottom:0}.markdown p{margin:10px 0}.markdown a{color:#ad9eff}.markdown h1,.markdown h2,.markdown h3{line-height:1.25}.markdown ul,.markdown ol{padding-left:23px}.markdown blockquote{margin:12px 0;padding:4px 14px;border-left:3px solid var(--accent);color:#b9c1cb;background:#ffffff04}.markdown hr{border:0;border-top:1px solid var(--border)}.markdown img,.ai-image{display:block;max-width:100%;max-height:650px;border-radius:12px;border:1px solid var(--border);margin:12px 0;cursor:pointer}.markdown table{width:100%;border-collapse:collapse;display:block;overflow-x:auto}.markdown th,.markdown td{border:1px solid var(--border);padding:7px 9px;text-align:left;min-width:90px}.markdown th{background:var(--panel2)}.markdown code:not(pre code){padding:2px 5px;background:#ffffff0b;border:1px solid #ffffff12;border-radius:5px}.code{margin:12px 0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#080b0f}.code-head{height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 9px 0 12px;color:var(--muted);font-size:10px;background:#11161c;border-bottom:1px solid var(--border)}.code-head button,.action{border:1px solid var(--border);background:#ffffff06;color:var(--muted);border-radius:6px;padding:4px 7px;font-size:10px}.code pre{margin:0;padding:13px;overflow:auto}.code code{font:13px/1.6 "SFMono-Regular",Consolas,monospace}.actions{display:flex;gap:6px;margin-top:8px}.typing{display:flex;gap:4px}.typing i{width:5px;height:5px;border-radius:50%;background:#8d97a4;animation:p 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes p{40%{opacity:1;transform:translateY(-2px)}0%,80%,100%{opacity:.3}}
-.overlay{position:fixed;inset:0;background:#0009;backdrop-filter:blur(8px);display:none;place-items:center;z-index:20}.modal{width:min(760px,92vw);max-height:85vh;overflow:auto;background:#11161c;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow)}.modal-head{display:flex;align-items:center;justify-content:space-between}.modal h2{margin:0}.close{border:0;background:none;color:var(--muted);font-size:22px}.setting{padding:13px 0;border-bottom:1px solid var(--border)}.setting:last-child{border:0}.setting label{display:flex;justify-content:space-between;gap:15px;font-size:13px}.setting small{display:block;color:var(--muted);margin-top:5px}.setting input,.setting select{margin-top:9px;width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px}.range{accent-color:var(--accent)}.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.compare-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#0d1217}.compare-card h3{font-size:13px;margin:0 0 8px}.compare-card .markdown{font-size:13px}.danger{color:#ff9aa0}.hidden{display:none!important}
-@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{display:none}.top{padding:0 10px}.model-select{min-width:0;width:55vw}.composer-wrap{left:0;padding:10px}.content{padding:22px 10px 155px}.top .small-btn{display:none}}
+:root{
+  --bg:#08090c;--panel:#0e1117;--panel2:#151922;--panel3:#1b202b;--border:#252b36;
+  --text:#f5f7fb;--muted:#8992a2;--accent:#7c5cff;--accent2:#9a84ff;
+  --user:#181d27;--assistant:#0d1015;--danger:#ff6978;--ok:#65d69a;
+  --shadow:0 24px 80px rgba(0,0,0,.38)
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.55}
+.app{height:100vh;display:grid;grid-template-columns:290px minmax(0,1fr)}
+.sidebar{background:rgba(11,13,18,.94);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:15px;min-width:0}
+.brand{display:flex;align-items:center;gap:11px;padding:5px 5px 17px}
+.logo{width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,#7c5cff,#4f9cff);display:grid;place-items:center;font-weight:900;box-shadow:0 8px 30px #7c5cff30}
+.brand-name{font-size:18px;font-weight:800;letter-spacing:-.03em}.brand-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.new-chat{width:100%;border:1px solid #343b48;background:var(--panel2);color:var(--text);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:9px;font-weight:650;transition:.15s}
+.new-chat:hover{background:var(--panel3);border-color:#485162}
+.plus{font-size:18px;line-height:1}
+.side-search{position:relative;margin:13px 0 11px}
+.side-search input{width:100%;background:#0a0d12;border:1px solid var(--border);color:var(--text);outline:none;border-radius:10px;padding:9px 10px 9px 34px;font-size:12px}
+.side-search input:focus{border-color:#4a416f}
+.side-search span{position:absolute;left:11px;top:8px;color:var(--muted);font-size:13px}
+.section-label{font-size:10px;color:#687181;text-transform:uppercase;letter-spacing:.13em;padding:3px 5px 7px}
+.chat-list{flex:1;overflow:auto;min-height:0;padding-right:2px}
+.chat-item{display:flex;align-items:center;gap:5px;border-radius:10px;margin:2px 0;color:#c9ced7;min-width:0}
+.chat-item.active{background:#1a1f29;color:#fff}
+.chat-main{min-width:0;flex:1;border:0;background:transparent;color:inherit;text-align:left;padding:10px 9px;overflow:hidden}
+.chat-title{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-time{font-size:9px;color:#697180;margin-top:3px}
+.chat-menu{border:0;background:transparent;color:#687181;padding:7px;margin-right:3px;border-radius:7px}
+.chat-menu:hover{background:#252b35;color:#fff}
+.empty-history{padding:18px 8px;color:#687181;font-size:12px;line-height:1.55;text-align:center}
+.sidebar-bottom{padding-top:10px;border-top:1px solid var(--border);margin-top:10px}
+.status-card{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:7px;padding:5px}
+.dot{width:7px;height:7px;border-radius:50%;background:#5b6370}.dot.ok{background:var(--ok);box-shadow:0 0 10px #65d69a80}.dot.bad{background:var(--danger)}
+.main{min-width:0;min-height:0;display:flex;flex-direction:column;position:relative}
+.topbar{height:64px;display:flex;align-items:center;gap:10px;padding:0 20px;border-bottom:1px solid var(--border);background:rgba(9,11,15,.84);backdrop-filter:blur(18px);z-index:5}
+.mobile-menu{display:none}
+.model-wrap{display:flex;align-items:center;gap:8px;min-width:0}
+.model-select{width:min(410px,40vw);background:var(--panel2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 34px 9px 11px;outline:none;font-size:12px}
+.model-select:focus{border-color:#4d4277}
+.provider-badge{font-size:10px;color:var(--muted);padding:5px 8px;border:1px solid var(--border);border-radius:999px;white-space:nowrap}
+.top-spacer{flex:1}
+.icon-btn,.top-btn{border:1px solid var(--border);background:var(--panel2);color:#cbd1db;border-radius:9px;height:34px;padding:0 10px;font-size:12px}
+.icon-btn{width:34px;padding:0;font-size:15px}
+.icon-btn:hover,.top-btn:hover{background:var(--panel3);color:#fff}
+.status{font-size:10px;color:var(--muted);white-space:nowrap}
+.scroll{flex:1;overflow:auto;min-height:0}
+.content{width:min(920px,100%);margin:auto;padding:26px 22px 170px}
+.welcome{min-height:56vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:45px 10px}
+.welcome-orb{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#7c5cff,#4f9cff);display:grid;place-items:center;font-size:24px;font-weight:900;box-shadow:0 15px 60px #7c5cff35;margin-bottom:19px}
+.welcome h1{font-size:34px;letter-spacing:-.05em;margin:0 0 9px}
+.welcome p{color:var(--muted);font-size:13px;max-width:560px;line-height:1.65;margin:0}
+.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:min(650px,100%);margin-top:25px}
+.quick{border:1px solid var(--border);background:#0e1218;border-radius:12px;color:#cdd2dc;text-align:left;padding:12px;font-size:12px;transition:.15s}
+.quick:hover{background:#171c25;border-color:#3b4351;transform:translateY(-1px)}
+.quick b{display:block;color:#f3f5f8;margin-bottom:3px}
+.message{display:flex;gap:12px;margin:0 0 25px;align-items:flex-start}
+.avatar{width:30px;height:30px;flex:0 0 30px;border-radius:10px;display:grid;place-items:center;font-size:11px;font-weight:800;margin-top:1px}
+.avatar.user{background:#2a303b}.avatar.ai{background:linear-gradient(135deg,#7c5cff,#4f9cff)}
+.bubble{min-width:0;flex:1}.roleline{font-size:10px;color:#737c8a;margin:2px 0 6px}
+.user-text{white-space:pre-wrap;line-height:1.6;font-size:14px}
+.ai-content{font-size:14px;line-height:1.68;color:#e6e9ef;overflow-wrap:anywhere}
+.ai-content p{margin:0 0 12px}.ai-content p:last-child{margin-bottom:0}
+.ai-content h1,.ai-content h2,.ai-content h3{letter-spacing:-.02em;margin:20px 0 9px}
+.ai-content h1{font-size:22px}.ai-content h2{font-size:18px}.ai-content h3{font-size:15px}
+.ai-content ul,.ai-content ol{padding-left:22px}.ai-content li{margin:4px 0}
+.ai-content blockquote{border-left:3px solid #4c5360;margin:12px 0;padding:2px 14px;color:#aab1bd}
+.ai-content a{color:#a99aff}
+.ai-content table{border-collapse:collapse;width:100%;margin:14px 0;font-size:12px}
+.ai-content th,.ai-content td{border:1px solid var(--border);padding:7px;text-align:left}.ai-content th{background:#151a22}
+.code-wrap{position:relative;margin:13px 0;border:1px solid #2a313d;border-radius:10px;overflow:hidden;background:#0b0e13}
+.code-head{display:flex;align-items:center;justify-content:space-between;background:#141820;border-bottom:1px solid #272e39;padding:6px 9px;font-size:10px;color:#7e8795}
+.copy-code{border:1px solid #303744;background:#1a2029;color:#bdc4cf;border-radius:6px;padding:4px 7px;font-size:10px}
+.copy-code:hover{color:#fff;background:#222a35}
+.ai-content pre{margin:0;overflow:auto;padding:13px;font-size:12px;line-height:1.55}
+.ai-content code:not(pre code){background:#1a2029;border:1px solid #2a313c;border-radius:5px;padding:1px 5px;font-size:.9em}
+.message-actions{display:flex;gap:5px;margin-top:8px}
+.message-actions button{border:0;background:transparent;color:#697382;font-size:10px;padding:4px 5px;border-radius:6px}
+.message-actions button:hover{background:#171c24;color:#cdd3dd}
+.generating{display:flex;align-items:center;gap:8px;color:#7d8795;font-size:12px}
+.thinking{display:flex;gap:4px}.thinking i{width:5px;height:5px;border-radius:50%;background:#8791a0;animation:pulse 1s infinite}.thinking i:nth-child(2){animation-delay:.15s}.thinking i:nth-child(3){animation-delay:.3s}
+@keyframes pulse{0%,70%,100%{opacity:.25;transform:translateY(0)}35%{opacity:1;transform:translateY(-3px)}}
+.image-result{margin-top:11px;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:#0b0e13;max-width:650px}
+.image-result img{display:block;width:100%;max-height:650px;object-fit:contain;background:#08090c}
+.image-caption{padding:9px 11px;font-size:11px;color:var(--muted)}
+.composer-area{position:absolute;left:0;right:0;bottom:0;padding:18px 20px 20px;background:linear-gradient(transparent,rgba(8,9,12,.97) 28%);pointer-events:none}
+.composer{pointer-events:auto;width:min(900px,100%);margin:auto;border:1px solid #303745;background:rgba(17,20,27,.96);border-radius:17px;box-shadow:var(--shadow);overflow:hidden}
+.composer-tools{display:flex;align-items:center;gap:7px;padding:8px 9px 0}
+.tool{border:0;background:transparent;color:#7e8795;border-radius:7px;padding:5px 7px;font-size:11px}.tool:hover{background:#202631;color:#d8dde6}
+.tool.active{color:#b8adff;background:#27213e}
+.attachment{font-size:10px;color:#a7aeba;display:flex;align-items:center;gap:6px;min-width:0;flex:1}
+.attachment span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.composer-row{display:flex;align-items:flex-end;gap:8px;padding:8px 9px 9px}
+.prompt{flex:1;min-height:46px;max-height:190px;resize:none;border:0;outline:none;background:transparent;color:var(--text);font-size:14px;line-height:1.5;padding:7px 5px}
+.prompt::placeholder{color:#626b79}
+.send{width:39px;height:39px;border:0;background:#f2f3f5;color:#11141a;border-radius:11px;font-weight:800}
+.send:hover{background:#fff}.send.stop{background:#ff6978;color:white}
+.composer-note{text-align:center;color:#5f6875;font-size:9px;padding:0 10px 8px}
+.overlay{position:fixed;inset:0;background:#0009;backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+.overlay.open{display:flex}
+.modal{width:min(720px,100%);max-height:min(720px,90vh);overflow:auto;background:#10141b;border:1px solid #303744;border-radius:16px;box-shadow:var(--shadow)}
+.modal-head{display:flex;align-items:center;gap:10px;padding:15px 16px;border-bottom:1px solid var(--border)}
+.modal-head h2{font-size:15px;margin:0}.modal-close{margin-left:auto;border:0;background:transparent;color:#7f8897;font-size:20px}
+.modal-body{padding:16px}.search-result{padding:11px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;background:#0c1016;cursor:pointer}.search-result:hover{border-color:#444d5b}.search-result b{font-size:12px}.search-result p{font-size:11px;color:var(--muted);margin:4px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modal-input{width:100%;border:1px solid var(--border);background:#0b0e13;color:#fff;border-radius:9px;padding:10px;outline:none}
+.image-modal-grid{display:grid;gap:11px}.image-modal-grid textarea{min-height:110px;resize:vertical;border:1px solid var(--border);background:#0b0e13;color:#fff;border-radius:10px;padding:10px;outline:none}.primary{border:0;background:linear-gradient(135deg,#7c5cff,#6650e8);color:white;border-radius:9px;padding:10px 13px;font-weight:700}.primary:hover{filter:brightness(1.08)}.result-note{font-size:11px;color:var(--muted);line-height:1.5}
+.toast{position:fixed;right:18px;bottom:18px;background:#171c24;border:1px solid #343c49;color:#e8ebf0;border-radius:10px;padding:10px 13px;font-size:11px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:100}.toast.show{opacity:1;transform:none}
+.hidden{display:none!important}
+@media(max-width:800px){
+  .app{grid-template-columns:1fr}.sidebar{position:fixed;left:0;top:0;bottom:0;width:290px;z-index:40;transform:translateX(-105%);transition:.2s;box-shadow:var(--shadow)}.sidebar.open{transform:none}.mobile-menu{display:block}.model-select{width:min(48vw,300px)}.provider-badge,.status{display:none}.content{padding-left:14px;padding-right:14px}.welcome h1{font-size:28px}.quick-grid{grid-template-columns:1fr}.composer-area{padding-left:10px;padding-right:10px}.topbar{padding:0 10px}
+}
+@media(max-width:500px){.top-btn{display:none}.model-select{width:46vw;font-size:11px}.message{gap:8px}.avatar{width:27px;height:27px;flex-basis:27px}.ai-content,.user-text{font-size:13px}}
 </style>
 </head>
 <body>
 <div class="app">
-<aside class="sidebar">
-<div class="brand"><div class="mark">M</div><span>MultiModel</span></div>
-<button class="new-chat" id="newChat">＋ New chat</button>
-<div class="label">Chats</div><div class="chat-list" id="chatList"></div>
-<div class="footer">Multi-provider AI workspace powered by Puter.js. Provider labels are treated as claims unless independently matched to an official model catalog.</div>
-</aside>
-<main class="main">
-<header class="top">
-<select class="model-select" id="modelSelect"><option>Loading models…</option></select>
-<span class="status" id="status">Connecting…</span><span class="top-spacer"></span>
-<button class="small-btn" id="compareBtn">Compare</button>
-<button class="small-btn" id="imageBtn">Image</button>
-<button class="small-btn" id="searchBtn">Search</button>
-<button class="small-btn" id="exportBtn">Export</button>
-<button class="small-btn" id="settingsBtn">⚙</button>
-</header>
-<section class="content">
-<div class="welcome" id="welcome"><div><h1>Ask any model.</h1><p>Chat, compare providers, inspect model metadata, attach files, generate images, and export your conversations.</p><div class="chips" id="chips"></div></div></div>
-<div class="messages" id="messages"></div>
-</section>
-<div class="composer-wrap">
-<form class="composer" id="composer">
-<div class="tools">
-<button class="tool-btn" type="button" id="attachBtn">📎 Attach</button>
-<input id="fileInput" type="file" hidden multiple accept="image/*,.txt,.md,.csv,.json,.pdf,.doc,.docx,.js,.py,.java,.html,.css">
-<button class="tool-btn" type="button" id="clearFile">Remove</button>
-<span class="file-name" id="fileName"></span>
-</div>
-<div class="composer-row"><textarea id="input" rows="1" placeholder="Message the selected model…"></textarea><button class="send" id="send" type="submit">↑</button></div>
-</form>
-</div>
-</main>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="logo">M</div><div><div class="brand-name">MultiModel</div><div class="brand-sub">AI workspace</div></div></div>
+    <button class="new-chat" id="newChat"><span class="plus">＋</span> New chat</button>
+    <div class="side-search"><span>⌕</span><input id="historySearch" placeholder="Search chats…" autocomplete="off"></div>
+    <div class="section-label">History</div>
+    <div class="chat-list" id="chatList"></div>
+    <div class="sidebar-bottom"><div class="status-card"><span class="dot" id="puterDot"></span><span id="puterStatus">Connecting to Puter…</span></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+      <div class="model-wrap">
+        <select class="model-select" id="modelSelect"><option value="">Loading models…</option></select>
+        <span class="provider-badge" id="providerBadge">Puter</span>
+      </div>
+      <span class="status" id="status">Starting…</span>
+      <div class="top-spacer"></div>
+      <button class="top-btn" id="imageBtn">✦ Image</button>
+      <button class="icon-btn" id="searchBtn" title="Search chats">⌕</button>
+    </header>
+
+    <div class="scroll" id="scroll">
+      <section class="content" id="content"></section>
+    </div>
+
+    <div class="composer-area">
+      <div class="composer">
+        <div class="composer-tools">
+          <button class="tool" id="attachBtn">＋ File</button>
+          <button class="tool" id="clearBtn">Clear</button>
+          <div class="attachment" id="attachment"><span></span></div>
+        </div>
+        <div class="composer-row">
+          <textarea class="prompt" id="prompt" rows="1" placeholder="Message your selected model…"></textarea>
+          <button class="send" id="sendBtn" aria-label="Send">↑</button>
+        </div>
+        <div class="composer-note">MultiModel uses Puter.js. AI usage is handled by Puter.</div>
+      </div>
+    </div>
+  </main>
 </div>
 
-<div class="overlay" id="settingsOverlay"><div class="modal">
-<div class="modal-head"><h2>Settings & model info</h2><button class="close" data-close="settingsOverlay">×</button></div>
-<div class="setting"><label>Temperature <b id="tempValue">0.7</b></label><input class="range" id="temperature" type="range" min="0" max="2" step=".1" value=".7"><small>Lower values are more deterministic; higher values are more varied.</small></div>
-<div class="setting"><label>Max output tokens <b id="tokensValue">model default</b></label><input id="maxTokens" type="number" min="1" placeholder="Model default"><small>Leave blank to use the selected model's limit.</small></div>
-<div class="setting"><label>Reasoning effort</label><select id="reasoning"><option value="">Model default</option><option>none</option><option>minimal</option><option>low</option><option>medium</option><option>high</option><option>xhigh</option></select></div>
-<div class="setting" id="modelInfo">Select a model to see its metadata.</div>
-<div class="setting"><b>Verification policy</b><small>🟢 Verified = model ID matches an official-provider allowlist maintained by this app. 🟡 Claimed = Puter reports that provider, but this app has not independently matched it. 🔴 Unknown = insufficient information. This is identity verification, not proof that every individual request was routed directly to the provider.</small></div>
-</div></div>
+<input type="file" id="fileInput" class="hidden" multiple>
+<div class="overlay" id="searchOverlay">
+  <div class="modal">
+    <div class="modal-head"><h2>Search conversations</h2><button class="modal-close" data-close="searchOverlay">×</button></div>
+    <div class="modal-body"><input class="modal-input" id="globalSearch" placeholder="Search messages…"><div id="searchResults" style="margin-top:12px"></div></div>
+  </div>
+</div>
 
-<div class="overlay" id="compareOverlay"><div class="modal">
-<div class="modal-head"><h2>Compare models</h2><button class="close" data-close="compareOverlay">×</button></div>
-<p style="color:var(--muted);font-size:13px">Choose up to four models. The same prompt will be sent to each selected model.</p>
-<div id="compareChoices"></div><textarea id="comparePrompt" style="width:100%;min-height:100px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px" placeholder="Prompt to compare…"></textarea>
-<button class="small-btn" id="runCompare" style="margin-top:10px">Run comparison</button>
-<div id="compareResults" style="margin-top:15px"></div>
-</div></div>
+<div class="overlay" id="imageOverlay">
+  <div class="modal">
+    <div class="modal-head"><h2>Generate image</h2><button class="modal-close" data-close="imageOverlay">×</button></div>
+    <div class="modal-body">
+      <div class="image-modal-grid">
+        <textarea id="imagePrompt" placeholder="Describe the image you want…"></textarea>
+        <div style="display:flex;gap:8px;align-items:center"><button class="primary" id="generateImage">Generate</button><span class="result-note" id="imageStatus">Puter image generation</span></div>
+        <div id="imagePreview"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="overlay" id="imageOverlay"><div class="modal">
-<div class="modal-head"><h2>Generate image</h2><button class="close" data-close="imageOverlay">×</button></div>
-<p style="color:var(--muted);font-size:13px">Puter supports text-to-image through multiple providers. Availability and billing depend on the selected route/account.</p>
-<select id="imageModel" style="width:100%;padding:9px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:9px"></select>
-<textarea id="imagePrompt" style="width:100%;min-height:110px;margin-top:10px;background:var(--panel2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px" placeholder="Describe the image…"></textarea>
-<button class="small-btn" id="generateImage" style="margin-top:10px">Generate</button><div id="imageResult" style="margin-top:15px"></div>
-</div></div>
+<div class="overlay" id="renameOverlay">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head"><h2>Rename chat</h2><button class="modal-close" data-close="renameOverlay">×</button></div>
+    <div class="modal-body"><input class="modal-input" id="renameInput" maxlength="100"><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="primary" id="renameSave">Save</button></div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
 
 <script>
-const state={models:[],messages:[],selected:localStorage.getItem("mm-model")||"",busy:false,chats:JSON.parse(localStorage.getItem("mm-chats")||"[]"),files:[],settings:JSON.parse(localStorage.getItem("mm-settings")||'{"temperature":0.7,"maxTokens":"","reasoning":""}')};
 const $=id=>document.getElementById(id);
-const officialAllowlist={
- openai:new Set(["gpt-4o","gpt-4o-mini","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano","gpt-5","gpt-5-mini","gpt-5-nano","gpt-5.1","gpt-5.2","gpt-5.3","gpt-5.4","gpt-5.5","gpt-5.6"]),
- anthropic:new Set(["claude-3-5-sonnet","claude-3-7-sonnet","claude-sonnet-4","claude-sonnet-4-5","claude-opus-4","claude-opus-4-1","claude-opus-4-5","claude-opus-4-6","claude-sonnet-4-6"]),
- google:new Set(["gemini-2.0-flash","gemini-2.5-flash","gemini-2.5-pro","gemini-3-flash","gemini-3-pro","gemini-3.1-flash","gemini-3.1-pro"])
-};
-function esc(s){return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-function name(m){return m.name||m.id}
-function normId(id){return String(id||"").toLowerCase().replace(/^(openai|anthropic|google|gemini|claude):/,"").split(":")[0].split("@")[0]}
-function verify(m){const p=String(m.provider||"").toLowerCase();const id=normId(m.id);for(const [provider,set] of Object.entries(officialAllowlist)){if(p.includes(provider)&&[...set].some(x=>id===x||id.startsWith(x+"-")||id.startsWith(x+".")))return["verified","Verified"]}if(p.includes("openai")||p.includes("anthropic")||p.includes("google")||p.includes("gemini")||p.includes("claude"))return["claimed","Provider claimed"];return["unknown","Unknown"]}
-function badge(m){const [c,t]=verify(m);return '<span class="badge '+c+'">'+(c==="verified"?"✓ ":"")+(t)+"</span>"}
-function renderModels(){
- const sel=$("modelSelect");sel.innerHTML="";
- const groups=new Map();
- state.models.forEach(m=>{const p=m.provider||"Other";if(!groups.has(p))groups.set(p,[]);groups.get(p).push(m)});
- for(const [p,arr] of groups){const g=document.createElement("optgroup");g.label=p;arr.sort((a,b)=>name(a).localeCompare(name(b))).forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=name(m)+(verify(m)[0]==="verified"?" ✓":"");g.appendChild(o)});sel.appendChild(g)}
- if(!state.models.some(m=>m.id===state.selected))state.selected=state.models[0]?.id||"";
- sel.value=state.selected;localStorage.setItem("mm-model",state.selected);renderChips();updateInfo();
+const KEY="mm-v3-chats";
+const MODEL_KEY="mm-v3-model";
+const state={chats:[],currentId:null,models:[],selectedModel:"",file:null,renamingId:null,busy:false};
+
+function uid(){return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8)}
+function now(){return Date.now()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>el.classList.remove("show"),2400)}
+function save(){localStorage.setItem(KEY,JSON.stringify(state.chats))}
+function load(){
+  try{state.chats=JSON.parse(localStorage.getItem(KEY)||"[]")}catch{state.chats=[]}
+  if(!Array.isArray(state.chats))state.chats=[];
+  const saved=localStorage.getItem(MODEL_KEY);if(saved)state.selectedModel=saved;
+  if(!state.chats.length)createChat(false);
+  else state.currentId=state.chats[0].id;
 }
-function renderChips(){$("chips").innerHTML=state.models.filter(m=>/gpt|claude|gemini|grok|deepseek|mistral/i.test(name(m))).slice(0,10).map(m=>'<span class="chip">'+esc(name(m))+" "+badge(m)+"</span>").join("")}
-async function loadModels(){
- try{state.models=await puter.ai.listModels();if(!Array.isArray(state.models)||!state.models.length)throw Error("No models returned");renderModels();$("status").textContent=state.models.length+" models"}
- catch(e){console.error(e);state.models=[];$("modelSelect").innerHTML='<option value="">Unable to load live models</option>';$("status").textContent="Model catalog unavailable"}
+function current(){return state.chats.find(c=>c.id===state.currentId)||null}
+function createChat(render=true){
+  const c={id:uid(),title:"New chat",created:now(),updated:now(),model:state.selectedModel,messages:[]};
+  state.chats.unshift(c);state.currentId=c.id;save();
+  if(render){renderChats();render()}
+  return c;
 }
-marked.setOptions({gfm:true,breaks:true});
-function md(src){
- const box=document.createElement("div");box.className="markdown";
- box.innerHTML=DOMPurify.sanitize(marked.parse(String(src??"")),{USE_PROFILES:{html:true},ADD_ATTR:["target","rel","class"],ALLOW_DATA_ATTR:false});
- box.querySelectorAll("a").forEach(a=>{a.target="_blank";a.rel="noopener noreferrer"});
- box.querySelectorAll("img").forEach(i=>{i.loading="lazy";i.onclick=()=>window.open(i.src,"_blank","noopener,noreferrer")});
- box.querySelectorAll("pre").forEach(pre=>{
-  const code=pre.querySelector("code");if(!code)return;
-  const lc=[...code.classList].find(c=>c.startsWith("language-"));const lang=lc?lc.slice(9):"text";
-  try{if(lang!=="text"&&hljs.getLanguage(lang))code.innerHTML=hljs.highlight(code.textContent,{language:lang,ignoreIllegals:true}).value;else code.innerHTML=hljs.highlightAuto(code.textContent).value}catch(_){}
-  const wrap=document.createElement("div");wrap.className="code";const head=document.createElement("div");head.className="code-head";const label=document.createElement("span");label.textContent=lang;const b=document.createElement("button");b.textContent="Copy";b.onclick=async()=>{await navigator.clipboard.writeText(code.textContent);b.textContent="Copied!";setTimeout(()=>b.textContent="Copy",1000)};head.append(label,b);pre.replaceWith(wrap);wrap.append(head,pre);
- });
- return box
+function selectChat(id){if(!state.chats.some(c=>c.id===id))return;state.currentId=id;const c=current();if(c?.model){state.selectedModel=c.model;$("modelSelect").value=c.model}renderChats();render();$("sidebar").classList.remove("open")}
+function deleteChat(id){
+  const i=state.chats.findIndex(c=>c.id===id);if(i<0)return;
+  state.chats.splice(i,1);if(!state.chats.length)createChat(false);
+  if(!state.chats.some(c=>c.id===state.currentId))state.currentId=state.chats[0].id;
+  save();renderChats();render();
+}
+function renameChat(id){const c=state.chats.find(x=>x.id===id);if(!c)return;state.renamingId=id;$("renameInput").value=c.title;$("renameOverlay").classList.add("open");setTimeout(()=>$("renameInput").select(),30)}
+function saveRename(){const c=state.chats.find(x=>x.id===state.renamingId);if(!c)return;c.title=$("renameInput").value.trim()||"New chat";c.updated=now();save();$("renameOverlay").classList.remove("open");renderChats();render()}
+function titleFrom(text){const t=text.replace(/\s+/g," ").trim();return t.length>46?t.slice(0,46)+"…":t||"New chat"}
+function timeLabel(ts){const d=new Date(ts),today=new Date();if(d.toDateString()===today.toDateString())return d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});return d.toLocaleDateString([],{month:"short",day:"numeric"})}
+function renderChats(){
+  const q=$("historySearch").value.trim().toLowerCase();
+  const list=$("chatList");list.innerHTML="";
+  const arr=state.chats.filter(c=>!q||c.title.toLowerCase().includes(q)||c.messages.some(m=>String(m.text||"").toLowerCase().includes(q)));
+  if(!arr.length){list.innerHTML='<div class="empty-history">No matching conversations.</div>';return}
+  arr.sort((a,b)=>b.updated-a.updated).forEach(c=>{
+    const row=document.createElement("div");row.className="chat-item"+(c.id===state.currentId?" active":"");
+    row.innerHTML='<button class="chat-main"><div class="chat-title">'+esc(c.title)+'</div><div class="chat-time">'+timeLabel(c.updated)+'</div></button><button class="chat-menu" title="Chat options">⋯</button>';
+    row.querySelector(".chat-main").onclick=()=>selectChat(c.id);
+    row.querySelector(".chat-menu").onclick=e=>{e.stopPropagation();const action=prompt("Type rename or delete");if(action==="rename")renameChat(c.id);else if(action==="delete")deleteChat(c.id)};
+    list.appendChild(row);
+  });
+}
+function normalizeContent(content){
+  if(typeof content==="string")return content;
+  if(Array.isArray(content))return content.map(x=>typeof x==="string"?x:(x?.text||x?.content||"")).join("");
+  return content?.text||content?.content||"";
+}
+function renderMarkdown(text){
+  const raw=marked.parse(text||"",{breaks:true,gfm:true});
+  const safe=DOMPurify.sanitize(raw,{ADD_ATTR:["target"]});
+  const box=document.createElement("div");box.innerHTML=safe;
+  box.querySelectorAll("a").forEach(a=>{a.target="_blank";a.rel="noopener noreferrer"});
+  box.querySelectorAll("pre code").forEach(code=>{
+    try{hljs.highlightElement(code)}catch{}
+    const pre=code.parentElement,wrap=document.createElement("div");wrap.className="code-wrap";
+    const head=document.createElement("div");head.className="code-head";
+    const lang=(code.className.match(/language-([^\s]+)/)||[])[1]||"code";
+    head.innerHTML="<span>"+esc(lang)+"</span><button class='copy-code'>Copy</button>";
+    head.querySelector("button").onclick=async()=>{await navigator.clipboard.writeText(code.innerText);toast("Code copied")};
+    pre.parentNode.insertBefore(wrap,pre);wrap.append(head,pre);
+  });
+  return box.innerHTML;
 }
 function render(){
- $("welcome").style.display=state.messages.length?"none":"grid";$("messages").innerHTML="";
- state.messages.forEach((m,i)=>{
-  const a=document.createElement("article");a.className="message "+m.role;const av=document.createElement("div");av.className="avatar";av.textContent=m.role==="user"?"Y":"AI";
-  const b=document.createElement("div");b.className="bubble";const meta=document.createElement("div");meta.className="meta";meta.textContent=m.role==="user"?"You":m.modelName||"AI";b.append(meta);
-  if(m.role==="user"){const t=document.createElement("div");t.textContent=m.content;b.append(t);if(m.files?.length){const f=document.createElement("div");f.style.cssText="margin-top:8px;color:var(--muted);font-size:11px";f.textContent="📎 "+m.files.join(", ");b.append(f)}}else{b.append(md(m.content));(m.images||[]).forEach(url=>{const im=document.createElement("img");im.className="ai-image";im.src=url;im.alt="AI-generated image";im.onclick=()=>window.open(url,"_blank","noopener,noreferrer");b.append(im)});const acts=document.createElement("div");acts.className="actions";const cp=document.createElement("button");cp.className="action";cp.textContent="Copy";cp.onclick=async()=>{await navigator.clipboard.writeText(m.content||"");cp.textContent="Copied!";setTimeout(()=>cp.textContent="Copy",1000)};const rg=document.createElement("button");rg.className="action";rg.textContent="Regenerate";rg.onclick=()=>regenerate(i);acts.append(cp,rg);b.append(acts)}
-  a.append(av,b);$("messages").append(a)
- });requestAnimationFrame(()=>scrollTo({top:document.body.scrollHeight,behavior:"smooth"}))
-}
-function saveCurrent(){if(!state.messages.length)return;const u=state.messages.find(m=>m.role==="user");state.chats.unshift({title:(u?.content||"New chat").slice(0,55),messages:state.messages,updated:Date.now()});state.chats=state.chats.slice(0,30);localStorage.setItem("mm-chats",JSON.stringify(state.chats));renderChats()}
-function renderChats(){$("chatList").innerHTML=state.chats.sort((a,b)=>b.updated-a.updated).map((c,i)=>'<div class="chat" data-i="'+i+'">'+esc(c.title)+"</div>").join("")}
-function reset(){state.messages=[];state.files=[];$("fileName").textContent="";render();$("input").focus()}
-function options(){
- const o={model:state.selected,stream:true,normalize:true};
- // Only send optional controls when the user explicitly changes them.
- // Some models reject generation parameters that are not supported by that model.
- if(Number(state.settings.temperature)!==0.7)o.temperature=Number(state.settings.temperature);
- if(state.settings.maxTokens)o.max_tokens=Number(state.settings.maxTokens);
- if(state.settings.reasoning)o.reasoning_effort=state.settings.reasoning;
- return o
-}
-async function send(text){
- if(state.busy||!text.trim()||!state.selected)return;
- state.busy=true;$("send").disabled=true;$("input").disabled=true;$("status").textContent="Thinking…";
- const model=state.models.find(m=>m.id===state.selected);const mn=model?name(model):state.selected;
- const uploaded=[];let mediaFiles=state.files;
- try{
-  if(mediaFiles.length){
-    const results=await puter.fs.upload(mediaFiles,"uploads",{dedupeName:true,createMissingParents:true});
-    const arr=Array.isArray(results)?results:[results];
-    arr.forEach(x=>{if(x?.path)uploaded.push(x.path);else throw new Error("File upload completed but Puter did not return a file path.")});
+  const c=current(),content=$("content");
+  if(!c||!c.messages.length){
+    content.innerHTML='<div class="welcome"><div class="welcome-orb">M</div><h1>What do you want to build?</h1><p>Chat with different AI models from one clean workspace. Your conversations stay in this browser.</p><div class="quick-grid"><button class="quick" data-prompt="Explain this concept like I am a beginner."><b>Learn something</b>Get a simple explanation</button><button class="quick" data-prompt="Help me plan and build this project step by step."><b>Build a project</b>Turn an idea into a plan</button><button class="quick" data-prompt="Review this code and explain how to improve it."><b>Review code</b>Find bugs and improvements</button><button class="quick" data-prompt="Give me five creative ideas for this topic."><b>Brainstorm</b>Explore new ideas</button></div></div>';
+    content.querySelectorAll(".quick").forEach(b=>b.onclick=()=>{$("prompt").value=b.dataset.prompt;autoGrow();$("prompt").focus()});
+    return;
   }
-  state.messages.push({role:"user",content:text.trim(),files:state.files.map(f=>f.name)});render();
-  const load=document.createElement("article");load.className="message assistant";load.innerHTML='<div class="avatar">AI</div><div class="bubble"><div class="meta">'+esc(mn)+" "+badge(model||{})+'</div><div class="typing"><i></i><i></i><i></i></div></div>';$("messages").append(load);
-  const messages=state.messages.map(m=>({role:m.role,content:m.content}));
-  if(uploaded.length){
-    // File context is attached only to the current user turn.
-    // Previous turns stay plain text so later messages remain normal chat requests.
-    messages[messages.length-1]={
-      role:"user",
-      content:[
-        ...uploaded.map(path=>({type:"file",puter_path:path})),
-        {type:"text",text:text.trim()}
-      ]
-    };
+  content.innerHTML="";
+  c.messages.forEach((m,i)=>{
+    const row=document.createElement("div");row.className="message";
+    const isUser=m.role==="user";
+    row.innerHTML='<div class="avatar '+(isUser?"user":"ai")+'">'+(isUser?"You":"M")+'</div><div class="bubble"><div class="roleline">'+(isUser?"You":"Assistant")+'</div><div class="'+(isUser?"user-text":"ai-content")+'"></div><div class="message-actions"></div></div>';
+    const body=row.querySelector(".user-text,.ai-content");
+    if(isUser)body.textContent=m.text||"";
+    else body.innerHTML=renderMarkdown(m.text||"");
+    if(m.imageUrl){const box=document.createElement("div");box.className="image-result";box.innerHTML='<img src="'+esc(m.imageUrl)+'" alt="Generated image"><div class="image-caption">'+esc(m.imagePrompt||"Generated image")+'</div>';body.appendChild(box)}
+    const actions=row.querySelector(".message-actions");
+    const copy=document.createElement("button");copy.textContent="Copy";copy.onclick=async()=>{await navigator.clipboard.writeText(m.text||"");toast("Copied")};actions.appendChild(copy);
+    if(!isUser){const regen=document.createElement("button");regen.textContent="Regenerate";regen.onclick=()=>regenerate(i);actions.appendChild(regen)}
+    content.appendChild(row);
+  });
+  requestAnimationFrame(()=>{$("scroll").scrollTop=$("scroll").scrollHeight});
+}
+function autoGrow(){const p=$("prompt");p.style.height="auto";p.style.height=Math.min(p.scrollHeight,190)+"px"}
+function setStatus(text,kind=""){
+  $("status").textContent=text;$("puterStatus").textContent=text;
+  $("puterDot").className="dot "+(kind==="ok"?"ok":kind==="bad"?"bad":"");
+}
+function modelLabel(m){return m.name||m.id||"Unknown model"}
+function renderModels(){
+  const sel=$("modelSelect"),previous=state.selectedModel;
+  sel.innerHTML="";
+  if(!state.models.length){sel.innerHTML='<option value="">No models available</option>';return}
+  const groups={};
+  state.models.forEach(m=>(groups[m.provider||"Other"]??=[]).push(m));
+  Object.entries(groups).sort().forEach(([provider,models])=>{
+    const og=document.createElement("optgroup");og.label=provider;
+    models.sort((a,b)=>modelLabel(a).localeCompare(modelLabel(b))).forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=modelLabel(m);og.appendChild(o)});
+    sel.appendChild(og);
+  });
+  const valid=state.models.some(m=>m.id===previous);
+  state.selectedModel=valid?previous:state.models[0].id;
+  sel.value=state.selectedModel;localStorage.setItem(MODEL_KEY,state.selectedModel);
+  const m=state.models.find(x=>x.id===state.selectedModel);$("providerBadge").textContent=m?.provider||"Puter";
+  const c=current();if(c&&!c.messages.length){c.model=state.selectedModel;save()}
+}
+async function loadModels(){
+  setStatus("Loading models…");
+  try{
+    const timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error("Model catalog timed out after 15 seconds")),15000));
+    const models=await Promise.race([puter.ai.listModels(),timeout]);
+    if(!Array.isArray(models)||!models.length)throw new Error("Puter returned no models");
+    state.models=models;renderModels();setStatus(models.length+" models","ok");
+  }catch(e){
+    console.error(e);state.models=[];renderModels();setStatus("Models unavailable","bad");toast("Could not load Puter models. Retry the page.");
   }
-  const res=await puter.ai.chat(messages,options());let answer="",images=[];const bub=load.querySelector(".bubble");bub.innerHTML='<div class="meta">'+esc(mn)+" "+badge(model||{})+'</div><div id="stream"></div>';
-  const stream=bub.querySelector("#stream");
-  for await(const part of res){if(typeof part?.text==="string"){answer+=part.text;stream.replaceChildren(md(answer))}if(part?.image?.image_url?.url){images.push(part.image.image_url.url);const im=document.createElement("img");im.className="ai-image";im.src=part.image.image_url.url;stream.append(im)}scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}
-  if(!answer.trim()&&!images.length)answer="The model returned an empty response.";
-  state.messages.push({role:"assistant",content:answer,modelName:mn,images});load.remove();localStorage.setItem("mm-current",JSON.stringify(state.messages));render();
- }catch(e){console.error(e);const load=document.querySelector(".message.assistant:last-child");if(load)load.querySelector(".bubble").innerHTML='<div class="danger">'+esc(e.message||String(e))+"</div>"}finally{state.files=[];$("fileName").textContent="";state.busy=false;$("send").disabled=false;$("input").disabled=false;$("status").textContent=state.models.length+" models";$("input").focus()}
 }
-async function regenerate(i){if(state.busy||i<=0)return;const u=state.messages[i-1];if(!u||u.role!=="user")return;state.messages=state.messages.slice(0,i-1);render();await send(u.content)}
-function updateInfo(){const m=state.models.find(x=>x.id===$("modelSelect").value);if(!m){$("modelInfo").textContent="No model selected.";return}const c=m.cost;const cost=c?((c.input??"?")+" input / "+(c.output??"?")+" output "+(c.currency||"")):"not reported";$("modelInfo").innerHTML='<b>'+esc(name(m))+"</b> "+badge(m)+'<small>Provider: '+esc(m.provider||"unknown")+'<br>ID: '+esc(m.id)+'<br>Context: '+esc(m.context??"not reported")+'<br>Max output: '+esc(m.max_tokens??"not reported")+'<br>Listed cost: '+esc(cost)+'</small>'}
-function open(id){$(id).style.display="grid"}function close(id){$(id).style.display="none"}
-$("modelSelect").onchange=()=>{state.selected=$("modelSelect").value;localStorage.setItem("mm-model",state.selected);updateInfo()};
-$("settingsBtn").onclick=()=>{open("settingsOverlay");$("temperature").value=state.settings.temperature;$("tempValue").textContent=state.settings.temperature;$("maxTokens").value=state.settings.maxTokens;$("reasoning").value=state.settings.reasoning;updateInfo()};
-$("temperature").oninput=e=>{$("tempValue").textContent=e.target.value;state.settings.temperature=e.target.value;localStorage.setItem("mm-settings",JSON.stringify(state.settings))};
-$("maxTokens").oninput=e=>{state.settings.maxTokens=e.target.value;localStorage.setItem("mm-settings",JSON.stringify(state.settings));$("tokensValue").textContent=e.target.value||"model default"};
-$("reasoning").onchange=e=>{state.settings.reasoning=e.target.value;localStorage.setItem("mm-settings",JSON.stringify(state.settings))};
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>close(b.dataset.close));
-$("composer").onsubmit=e=>{e.preventDefault();const t=$("input").value;$("input").value="";$("input").style.height="auto";send(t)};
-$("input").oninput=()=>{$("input").style.height="auto";$("input").style.height=Math.min($("input").scrollHeight,180)+"px"};
-$("input").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();$("composer").requestSubmit()}};
-$("newChat").onclick=()=>{if(state.messages.length)saveCurrent();reset()};$("clearFile").onclick=()=>{state.files=[];$("fileInput").value="";$("fileName").textContent=""};
-$("attachBtn").onclick=()=>$("fileInput").click();$("fileInput").onchange=e=>{state.files=[...e.target.files];$("fileName").textContent=state.files.length?state.files.map(f=>f.name).join(", "):""};
-$("chatList").onclick=e=>{const x=e.target.closest(".chat");if(!x)return;const c=state.chats[Number(x.dataset.i)];if(c){state.messages=c.messages||[];render()}};
-$("exportBtn").onclick=()=>{const mdText=state.messages.map(m=>(m.role==="user"?"## You":"## "+(m.modelName||"AI"))+"\n\n"+m.content).join("\n\n");const blob=new Blob([mdText],{type:"text/markdown"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="multimodel-chat.md";a.click();URL.revokeObjectURL(a.href)};
-$("searchBtn").onclick=()=>{const q=prompt("Search this conversation:");if(!q)return;const hits=state.messages.map((m,i)=>({m,i})).filter(x=>x.m.content.toLowerCase().includes(q.toLowerCase()));alert(hits.length+" matching message(s) found.")};
-$("compareBtn").onclick=()=>{open("compareOverlay");$("compareChoices").innerHTML=state.models.map((m,i)=>'<label style="display:block;padding:7px"><input type="checkbox" value="'+esc(m.id)+'" '+(i<3?"":"")+" > "+esc(name(m))+" "+badge(m)+"</label>").join("")};
-$("runCompare").onclick=async()=>{
- const ids=[...$("compareChoices").querySelectorAll("input:checked")].map(x=>x.value).slice(0,4);const prompt=$("comparePrompt").value.trim();if(!ids.length||!prompt){alert("Choose at least one model and enter a prompt.");return}
- $("compareResults").innerHTML='<div style="color:var(--muted)">Running '+ids.length+" models…</div>";
- const results=await Promise.all(ids.map(async id=>{const m=state.models.find(x=>x.id===id);try{const r=await puter.ai.chat(prompt,{model:id,stream:false,normalize:true,temperature:Number(state.settings.temperature)});const text=r?.message?.content??r?.text??String(r);return {m,text}}catch(e){return {m,text:"Error: "+(e.message||e)}}}));
- $("compareResults").innerHTML='<div class="compare-grid">'+results.map(x=>'<div class="compare-card"><h3>'+esc(name(x.m))+" "+badge(x.m)+'</h3><div class="markdown"></div></div>').join("")+"</div>";[...$("compareResults .markdown")].forEach((el,i)=>el.replaceWith(md(results[i].text)));
-};
-const imageCatalog=[
- {id:"gpt-image-2",label:"OpenAI — GPT Image 2"},
- {id:"gpt-image-2.5-sunburst",label:"OpenAI — GPT Image 2.5 Sunburst"},
- {id:"gpt-image-2.5-flare",label:"OpenAI — GPT Image 2.5 Flare"},
- {id:"gemini-3.1-flash-image",label:"Google — Gemini 3.1 Flash Image"},
- {id:"gemini-3-pro-image",label:"Google — Gemini 3 Pro Image"},
- {id:"grok-imagine-image",label:"xAI — Grok Imagine Image"},
- {id:"grok-imagine-image-2.0",label:"xAI — Grok Imagine Image 2.0"},
- {id:"@cf/black-forest-labs/flux-1-schnell",label:"Cloudflare — FLUX.1 Schnell"},
- {id:"black-forest-labs/flux-schnell",label:"Replicate — FLUX Schnell"},
- {id:"seedream-5-0-lite-260128",label:"BytePlus — Seedream 5.0 Lite"}
-];
-function populateImageModels(){
- const sel=$("imageModel");sel.innerHTML="";
- const auto=document.createElement("option");auto.value="";auto.textContent="Auto (recommended)";sel.appendChild(auto);
- imageCatalog.forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=m.label;sel.appendChild(o)});
+function errorText(e){return e?.message||e?.msg||String(e)}
+async function send(){
+  if(state.busy)return;
+  const prompt=$("prompt").value.trim();if(!prompt)return;
+  if(!state.selectedModel){toast("Select a model first");return}
+  let c=current();if(!c)c=createChat(false);
+  const user={role:"user",text:prompt,time:now()};
+  c.messages.push(user);if(c.title==="New chat")c.title=titleFrom(prompt);c.model=state.selectedModel;c.updated=now();save();
+  $("prompt").value="";autoGrow();state.busy=true;$("sendBtn").classList.add("stop");$("sendBtn").textContent="■";render();
+  const placeholder={role:"assistant",text:"",time:now(),pending:true};c.messages.push(placeholder);render();
+  try{
+    const messages=c.messages.filter(m=>!m.pending).map(m=>({role:m.role,content:m.text}));
+    const result=await puter.ai.chat(messages,{model:state.selectedModel,stream:true,normalize:true});
+    let full="";
+    if(result&&result[Symbol.asyncIterator]){
+      for await(const chunk of result){
+        const piece=normalizeContent(chunk?.text??chunk?.message?.content??chunk?.content??"");
+        if(piece){full+=piece;placeholder.text=full;render()}
+      }
+    }else full=normalizeContent(result?.message?.content??result?.text??result);
+    placeholder.text=full||"The model returned an empty response.";
+  }catch(e){placeholder.text="**Error:** "+errorText(e);toast("AI request failed")}
+  finally{delete placeholder.pending;c.updated=now();save();state.busy=false;$("sendBtn").classList.remove("stop");$("sendBtn").textContent="↑";render();renderChats()}
 }
-$("imageBtn").onclick=()=>{open("imageOverlay");populateImageModels();$("imageResult").innerHTML=""};
-$("generateImage").onclick=async()=>{
- const p=$("imagePrompt").value.trim();if(!p)return;
- const btn=$("generateImage");btn.disabled=true;btn.textContent="Generating…";$("imageResult").innerHTML='<div style="color:var(--muted)">Generating image…</div>';
- try{
-   const id=$("imageModel").value;
-   const opts=id?{model:id,quality:"medium",ratio:{w:1,h:1}}:{quality:"medium",ratio:{w:1,h:1}};
-   const img=await puter.ai.txt2img(p,opts);
-   img.className="ai-image";img.alt="AI-generated image";
-   $("imageResult").replaceChildren(img);
-   const dl=document.createElement("a");dl.textContent="Open image in new tab";dl.href=img.src;dl.target="_blank";dl.rel="noopener noreferrer";dl.style.color="#ad9eff";
-   $("imageResult").append(document.createElement("br"),dl);
- }catch(e){
-   console.error("Image generation error:",e);
-   const msg=e?.message||e?.error?.message||String(e);
-   const code=e?.errorCode||e?.code||"";
-   $("imageResult").innerHTML='<div class="danger"><b>Image generation failed</b><br>'+esc(msg)+(code?'<br><small>Error: '+esc(code)+"</small>":"")+"</div>";
- }finally{btn.disabled=false;btn.textContent="Generate"}
-};
-renderChats();render();loadModels();
+async function regenerate(index){
+  if(state.busy)return;const c=current();if(!c)return;
+  const target=c.messages[index];if(!target||target.role!=="assistant")return;
+  let start=index-1;while(start>=0&&c.messages[start].role!=="user")start--;
+  if(start<0)return;
+  c.messages.splice(index,1);save();render();
+  const original=$("prompt").value;$("prompt").value=c.messages[start].text;
+  const fake= c.messages.splice(start+1,0,{role:"user",text:c.messages[start].text,time:now(),regenerated:true});
+  // Remove the temporary duplicate before sending through the normal request path.
+  c.messages.splice(start+1,1);$("prompt").value="";state.busy=true;$("sendBtn").classList.add("stop");$("sendBtn").textContent="■";
+  const placeholder={role:"assistant",text:"",time:now(),pending:true};c.messages.push(placeholder);render();
+  try{
+    const messages=c.messages.slice(0,-1).filter(m=>!m.pending).map(m=>({role:m.role,content:m.text}));
+    const result=await puter.ai.chat(messages,{model:c.model||state.selectedModel,stream:true,normalize:true});
+    let full="";if(result&&result[Symbol.asyncIterator])for await(const chunk of result){const piece=normalizeContent(chunk?.text??chunk?.message?.content??chunk?.content??"");if(piece){full+=piece;placeholder.text=full;render()}}else full=normalizeContent(result?.message?.content??result?.text??result);
+    placeholder.text=full||"The model returned an empty response.";
+  }catch(e){placeholder.text="**Error:** "+errorText(e)}
+  finally{delete placeholder.pending;c.updated=now();save();state.busy=false;$("sendBtn").classList.remove("stop");$("sendBtn").textContent="↑";render();renderChats()}
+}
+async function generateImage(){
+  const p=$("imagePrompt").value.trim();if(!p)return toast("Describe the image first");
+  $("generateImage").disabled=true;$("imageStatus").textContent="Generating…";$("imagePreview").innerHTML="";
+  try{
+    const result=await puter.ai.txt2img(p);
+    const url=result?.url||result?.image_url||result?.src||result;
+    if(!url)throw new Error("Puter returned no image URL");
+    const c=current();c.messages.push({role:"assistant",text:"Generated an image.",imageUrl:url,imagePrompt:p,time:now()});c.updated=now();save();$("imageOverlay").classList.remove("open");render();renderChats();
+  }catch(e){$("imageStatus").textContent=errorText(e);toast("Image generation failed")}
+  finally{$("generateImage").disabled=false}
+}
+function runSearch(q){
+  const out=$("searchResults");q=q.trim().toLowerCase();out.innerHTML="";
+  if(!q){out.innerHTML='<div class="result-note">Type something to search your saved conversations.</div>';return}
+  const hits=[];
+  state.chats.forEach(c=>c.messages.forEach(m=>{if(String(m.text||"").toLowerCase().includes(q))hits.push({c,m})}));
+  if(!hits.length){out.innerHTML='<div class="result-note">No matches found.</div>';return}
+  hits.slice(0,30).forEach(({c,m})=>{const el=document.createElement("div");el.className="search-result";el.innerHTML="<b>"+esc(c.title)+"</b><p>"+esc(m.text||"Generated image")+"</p>";el.onclick=()=>{$("searchOverlay").classList.remove("open");selectChat(c.id)};out.appendChild(el)})
+}
+$("newChat").onclick=()=>createChat();
+$("historySearch").oninput=renderChats;
+$("modelSelect").onchange=e=>{state.selectedModel=e.target.value;localStorage.setItem(MODEL_KEY,state.selectedModel);const c=current();if(c){c.model=state.selectedModel;c.updated=now();save()}const m=state.models.find(x=>x.id===state.selectedModel);$("providerBadge").textContent=m?.provider||"Puter"};
+$("sendBtn").onclick=send;
+$("prompt").addEventListener("input",autoGrow);
+$("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+$("attachBtn").onclick=()=>$("fileInput").click();
+$("fileInput").onchange=e=>{state.file=e.target.files?.[0]||null;$("attachment").querySelector("span").textContent=state.file?state.file.name:"";if(state.file)toast("File selected — add its contents to your prompt if needed.")};
+$("clearBtn").onclick=()=>{state.file=null;$("fileInput").value="";$("attachment").querySelector("span").textContent=""};
+$("imageBtn").onclick=()=>{$("imageOverlay").classList.add("open");$("imagePrompt").focus()};
+$("generateImage").onclick=generateImage;
+$("searchBtn").onclick=()=>{$("searchOverlay").classList.add("open");$("globalSearch").focus();runSearch($("globalSearch").value)};
+$("globalSearch").oninput=e=>runSearch(e.target.value);
+$("menuBtn").onclick=()=>$("sidebar").classList.toggle("open");
+document.querySelectorAll(".modal-close").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove("open"));
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("open")}));
+$("renameSave").onclick=saveRename;
+$("renameInput").addEventListener("keydown",e=>{if(e.key==="Enter")saveRename()});
+
+load();renderChats();render();loadModels();
 </script>
 </body>
 </html>
