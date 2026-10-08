@@ -10,6 +10,8 @@
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
 <style>
 :root{
   --bg:#08090c;--panel:#0e1117;--panel2:#151922;--panel3:#1b202b;--border:#252b36;
@@ -140,6 +142,19 @@ button:disabled{cursor:not-allowed;opacity:.55}
 .tool-output video,.tool-output audio{width:100%;max-width:100%;margin-top:5px}.tool-user{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);background:#0b0e13;border-radius:10px}.tool-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c5cff,#4f9cff);display:grid;place-items:center;font-weight:800}.tool-user-main{min-width:0;flex:1}.tool-user-main b{display:block;font-size:12px}.tool-user-main span{display:block;color:var(--muted);font-size:10px;margin-top:2px;overflow:hidden;text-overflow:ellipsis}.auth-button{border:1px solid #39324f;background:#171321;color:#cfc7ff;border-radius:9px;height:34px;padding:0 11px;font-size:11px}.auth-button:hover{background:#211b31;color:#fff}
 .file-list{display:grid;gap:5px}.file-row{display:flex;align-items:center;gap:7px;padding:8px;border:1px solid var(--border);border-radius:8px;background:#0b0e13;font-size:10px}.file-row span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mini{border:1px solid var(--border);background:#171c24;color:#cbd1db;border-radius:7px;padding:4px 7px;font-size:9px}
 @media(max-width:650px){.tools-layout{grid-template-columns:1fr}.tool-nav{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--border);gap:4px}.tool-tab{min-width:max-content;margin:0}.tool-grid.two{grid-template-columns:1fr}.tools-modal{max-height:94vh}}
+
+.ai-content .task-list{list-style:none;padding-left:0}
+.ai-content .task-list-item{display:flex;align-items:flex-start;gap:7px}
+.ai-content .task-list-item input{margin-top:.45em;accent-color:var(--accent);pointer-events:none}
+.ai-content hr{border:0;border-top:1px solid var(--border);margin:20px 0}
+.ai-content img{display:block;max-width:100%;height:auto;border-radius:10px;margin:12px 0;border:1px solid var(--border)}
+.ai-content .katex-display{overflow:auto;padding:8px 0;margin:12px 0}
+.ai-content .katex{font-size:1.02em}
+.ai-content dl{margin:12px 0}.ai-content dt{font-weight:700;margin-top:8px}.ai-content dd{margin:3px 0 8px 18px;color:#c1c7d0}
+.code-wrap.collapsed pre{max-height:180px;overflow:hidden;position:relative}
+.code-wrap.collapsed pre:after{content:"";position:absolute;left:0;right:0;bottom:0;height:65px;background:linear-gradient(transparent,#0b0e13)}
+.code-head-actions{display:flex;align-items:center;gap:6px}
+.copy-code,.expand-code{cursor:pointer}
 </style>
 </head>
 <body>
@@ -340,18 +355,73 @@ function normalizeContent(content){
   if(Array.isArray(content))return content.map(x=>typeof x==="string"?x:(x?.text||x?.content||"")).join("");
   return content?.text||content?.content||"";
 }
+function protectMathAndCode(source){
+  const protectedParts=[];
+  const stash=value=>{const id="\\uE000"+protectedParts.length+"\\uE001";protectedParts.push(value);return id};
+  source=source.replace(/(^|\\n)(\\`\\`\\`[\\s\\S]*?\\`\\`\\`)(?=\\n|$)/g,(m,start,block)=>start+stash(block));
+  source=source.replace(/(\\`[^\\`\\n]+\\`)/g,match=>stash(match));
+  if(window.katex){
+    source=source.replace(/\\$\\$([\\s\\S]+?)\\$\\$/g,(_,expr)=>stash('<div class="katex-display">'+katex.renderToString(expr,{displayMode:true,throwOnError:false})+'</div>'));
+    source=source.replace(/\\$([^$\\n]+?)\\$/g,(_,expr)=>stash(katex.renderToString(expr,{displayMode:false,throwOnError:false})));
+  }
+  return {source,restore(html){
+    return html.replace(/\\uE000(\\d+)\\uE001/g,(_,i)=>protectedParts[Number(i)]??"");
+  }};
+}
 function renderMarkdown(text){
-  const raw=marked.parse(text||"",{breaks:true,gfm:true});
-  const safe=DOMPurify.sanitize(raw,{ADD_ATTR:["target"]});
+  const prepared=protectMathAndCode(String(text||""));
+  const raw=marked.parse(prepared.source,{breaks:true,gfm:true});
+  let safe=DOMPurify.sanitize(raw,{
+    ADD_ATTR:["target","class","disabled","checked"],
+    ADD_TAGS:["input"],
+    ALLOW_DATA_ATTR:false
+  });
+  safe=prepared.restore(safe);
   const box=document.createElement("div");box.innerHTML=safe;
-  box.querySelectorAll("a").forEach(a=>{a.target="_blank";a.rel="noopener noreferrer"});
+  box.querySelectorAll("a").forEach(a=>{
+    a.target="_blank";a.rel="noopener noreferrer";
+  });
+  box.querySelectorAll("img").forEach(img=>{
+    img.loading="lazy";img.referrerPolicy="no-referrer";
+  });
+  box.querySelectorAll("input[type=checkbox]").forEach(input=>{
+    input.disabled=true;
+    const li=input.closest("li");if(li)li.classList.add("task-list-item");
+    const list=input.closest("ul");if(list)list.classList.add("task-list");
+  });
   box.querySelectorAll("pre code").forEach(code=>{
-    try{hljs.highlightElement(code)}catch{}
-    const pre=code.parentElement,wrap=document.createElement("div");wrap.className="code-wrap";
+    const pre=code.parentElement;
+    const declared=(code.className.match(/language-([^\s]+)/)||[])[1]||"";
+    let language=declared;
+    try{
+      if(declared && hljs.getLanguage(declared)){
+        hljs.highlightElement(code);
+      }else{
+        const result=hljs.highlightAuto(code.textContent||"");
+        code.innerHTML=result.value;
+        language=result.language||"code";
+      }
+    }catch{}
+    const wrap=document.createElement("div");wrap.className="code-wrap";
     const head=document.createElement("div");head.className="code-head";
-    const lang=(code.className.match(/language-([^\s]+)/)||[])[1]||"code";
-    head.innerHTML="<span>"+esc(lang)+"</span><button class='copy-code'>Copy</button>";
-    head.querySelector("button").onclick=async()=>{await navigator.clipboard.writeText(code.innerText);toast("Code copied")};
+    const actions=document.createElement("div");actions.className="code-head-actions";
+    const label=document.createElement("span");label.textContent=language||"code";
+    const copy=document.createElement("button");copy.className="copy-code";copy.textContent="Copy";
+    copy.onclick=async()=>{
+      try{await navigator.clipboard.writeText(code.textContent||"");toast("Code copied")}
+      catch{toast("Could not copy code")}
+    };
+    actions.appendChild(copy);
+    const lines=(code.textContent||"").split("\\n").length;
+    if(lines>12){
+      const expand=document.createElement("button");expand.className="expand-code";expand.textContent="Expand";
+      expand.onclick=()=>{
+        const collapsed=wrap.classList.toggle("collapsed");
+        expand.textContent=collapsed?"Expand":"Collapse";
+      };
+      actions.appendChild(expand);wrap.classList.add("collapsed");
+    }
+    head.append(label,actions);
     pre.parentNode.insertBefore(wrap,pre);wrap.append(head,pre);
   });
   return box.innerHTML;
