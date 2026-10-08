@@ -126,6 +126,20 @@ button:disabled{cursor:not-allowed;opacity:.55}
   .app{grid-template-columns:1fr}.sidebar{position:fixed;left:0;top:0;bottom:0;width:290px;z-index:40;transform:translateX(-105%);transition:.2s;box-shadow:var(--shadow)}.sidebar.open{transform:none}.mobile-menu{display:block}.model-select{width:min(48vw,300px)}.provider-badge,.status{display:none}.content{padding-left:14px;padding-right:14px}.welcome h1{font-size:28px}.quick-grid{grid-template-columns:1fr}.composer-area{padding-left:10px;padding-right:10px}.topbar{padding:0 10px}
 }
 @media(max-width:500px){.top-btn{display:none}.model-select{width:46vw;font-size:11px}.message{gap:8px}.avatar{width:27px;height:27px;flex-basis:27px}.ai-content,.user-text{font-size:13px}}
+
+/* Extra tools */
+.tools-modal{width:min(900px,100%)}
+.tools-layout{display:grid;grid-template-columns:160px minmax(0,1fr);min-height:470px}
+.tool-nav{border-right:1px solid var(--border);padding:10px}
+.tool-tab{display:block;width:100%;border:0;background:transparent;color:#8992a2;text-align:left;border-radius:9px;padding:10px;font-size:11px;margin-bottom:3px}
+.tool-tab:hover{background:#181d25;color:#fff}.tool-tab.active{background:#241f39;color:#c4baff}
+.tool-panel{padding:16px}.tool-panel h3{font-size:15px;margin:0 0 5px}.tool-panel>p{font-size:11px;color:var(--muted);line-height:1.55;margin:0 0 14px}
+.tool-grid{display:grid;gap:10px}.tool-grid.two{grid-template-columns:1fr 1fr}.tool-label{font-size:10px;color:#8d96a5;margin-bottom:5px;display:block}
+.tool-input,.tool-textarea,.tool-select{width:100%;border:1px solid var(--border);background:#0b0e13;color:#f5f7fb;border-radius:9px;padding:9px;outline:none;font-size:12px}.tool-textarea{min-height:110px;resize:vertical}.tool-input:focus,.tool-textarea:focus,.tool-select:focus{border-color:#4d4277}
+.tool-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.tool-output{margin-top:12px;border:1px solid var(--border);background:#0a0d12;border-radius:9px;padding:10px;min-height:45px;max-height:260px;overflow:auto;color:#b9c0ca;font:11px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap}
+.tool-output video,.tool-output audio{width:100%;max-width:100%;margin-top:5px}.tool-user{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);background:#0b0e13;border-radius:10px}.tool-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c5cff,#4f9cff);display:grid;place-items:center;font-weight:800}.tool-user-main{min-width:0;flex:1}.tool-user-main b{display:block;font-size:12px}.tool-user-main span{display:block;color:var(--muted);font-size:10px;margin-top:2px;overflow:hidden;text-overflow:ellipsis}.auth-button{border:1px solid #39324f;background:#171321;color:#cfc7ff;border-radius:9px;height:34px;padding:0 11px;font-size:11px}.auth-button:hover{background:#211b31;color:#fff}
+.file-list{display:grid;gap:5px}.file-row{display:flex;align-items:center;gap:7px;padding:8px;border:1px solid var(--border);border-radius:8px;background:#0b0e13;font-size:10px}.file-row span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mini{border:1px solid var(--border);background:#171c24;color:#cbd1db;border-radius:7px;padding:4px 7px;font-size:9px}
+@media(max-width:650px){.tools-layout{grid-template-columns:1fr}.tool-nav{display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--border);gap:4px}.tool-tab{min-width:max-content;margin:0}.tool-grid.two{grid-template-columns:1fr}.tools-modal{max-height:94vh}}
 </style>
 </head>
 <body>
@@ -149,6 +163,8 @@ button:disabled{cursor:not-allowed;opacity:.55}
       <span class="status" id="status">Starting…</span>
       <div class="top-spacer"></div>
       <button class="top-btn" id="imageBtn">✦ Image</button>
+      <button class="top-btn" id="toolsBtn">Tools</button>
+      <button class="auth-button" id="authBtn">Sign in</button>
       <button class="icon-btn" id="searchBtn" title="Search chats">⌕</button>
     </header>
 
@@ -198,6 +214,74 @@ button:disabled{cursor:not-allowed;opacity:.55}
   <div class="modal" style="max-width:440px">
     <div class="modal-head"><h2>Rename chat</h2><button class="modal-close" data-close="renameOverlay">×</button></div>
     <div class="modal-body"><input class="modal-input" id="renameInput" maxlength="100"><div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="primary" id="renameSave">Save</button></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="toolsOverlay">
+  <div class="modal tools-modal">
+    <div class="modal-head"><h2>Puter Tools</h2><button class="modal-close" data-close="toolsOverlay">×</button></div>
+    <div class="tools-layout">
+      <nav class="tool-nav">
+        <button class="tool-tab active" data-tool="media">AI Media</button>
+        <button class="tool-tab" data-tool="speech">Speech</button>
+        <button class="tool-tab" data-tool="cloud">Cloud Files</button>
+        <button class="tool-tab" data-tool="data">Data</button>
+        <button class="tool-tab" data-tool="network">Network</button>
+        <button class="tool-tab" data-tool="account">Account</button>
+      </nav>
+      <div>
+        <section class="tool-panel" data-tool-panel="media">
+          <h3>AI Media</h3><p>Generate short videos or extract text from an image/document. These actions only run when you click them.</p>
+          <div class="tool-grid">
+            <div><label class="tool-label">Text to video</label><textarea class="tool-textarea" id="videoPrompt" placeholder="Describe the subject, movement, camera and mood…"></textarea>
+              <div class="tool-grid two"><input class="tool-input" id="videoSeconds" type="number" min="1" max="12" value="5" placeholder="Seconds"><input class="tool-input" id="videoSize" value="1280x720" placeholder="Size"></div>
+              <div class="tool-actions"><button class="primary" id="generateVideo">Generate video</button><button class="mini" id="testVideo">Test mode</button></div>
+            </div>
+            <div><label class="tool-label">OCR</label><input class="tool-input" id="ocrFile" type="file" accept="image/*,.pdf,.txt,.md"><div class="tool-actions"><button class="primary" id="runOCR">Extract text</button></div></div>
+          </div>
+          <div class="tool-output" id="mediaOutput">Ready.</div>
+        </section>
+        <section class="tool-panel hidden" data-tool-panel="speech">
+          <h3>Speech</h3><p>Text-to-speech, speech-to-text, and voice conversion.</p>
+          <div class="tool-grid">
+            <textarea class="tool-textarea" id="ttsText" maxlength="3000" placeholder="Text to speak…"></textarea>
+            <div class="tool-grid two"><select class="tool-select" id="ttsProvider"><option value="aws-polly">AWS Polly</option><option value="openai">OpenAI</option><option value="elevenlabs">ElevenLabs</option><option value="gemini">Gemini</option><option value="xai">xAI</option></select><input class="tool-input" id="ttsVoice" value="Joanna" placeholder="Voice"></div>
+            <div class="tool-actions"><button class="primary" id="runTTS">Speak</button><button class="mini" id="listVoices">List voices</button></div>
+            <input class="tool-input" id="sttFile" type="file" accept="audio/*">
+            <div class="tool-actions"><button class="primary" id="runSTT">Transcribe audio</button></div>
+            <input class="tool-input" id="s2sFile" type="file" accept="audio/*">
+            <div class="tool-actions"><button class="primary" id="runS2S">Change voice</button></div>
+          </div>
+          <div class="tool-output" id="speechOutput">Ready.</div>
+        </section>
+        <section class="tool-panel hidden" data-tool-panel="cloud">
+          <h3>Cloud Files</h3><p>Manage files in the signed-in user's Puter storage. Authentication is requested by Puter only when an operation needs it.</p>
+          <div class="tool-grid two"><input class="tool-input" id="cloudPath" value="multimodel/notes.txt" placeholder="Path"><input class="tool-input" id="cloudFile" type="file"></div>
+          <textarea class="tool-textarea" id="cloudText" placeholder="Text to write…"></textarea>
+          <div class="tool-actions"><button class="primary" id="cloudWrite">Write</button><button class="mini" id="cloudRead">Read</button><button class="mini" id="cloudDelete">Delete</button><button class="mini" id="cloudList">List directory</button><button class="mini" id="cloudUpload">Upload selected</button></div>
+          <div class="tool-output" id="cloudOutput">Ready.</div>
+        </section>
+        <section class="tool-panel hidden" data-tool-panel="data">
+          <h3>Key-Value Data</h3><p>Small structured data stored in the user's Puter account, isolated to this app.</p>
+          <div class="tool-grid two"><input class="tool-input" id="kvKey" placeholder="Key"><input class="tool-input" id="kvValue" placeholder="Value"></div>
+          <div class="tool-actions"><button class="primary" id="kvSet">Set</button><button class="mini" id="kvGet">Get</button><button class="mini" id="kvDelete">Delete</button><button class="mini" id="kvList">List keys</button></div>
+          <div class="tool-output" id="kvOutput">Ready.</div>
+        </section>
+        <section class="tool-panel hidden" data-tool-panel="network">
+          <h3>Network</h3><p>Make an HTTP request through Puter's network layer, useful when a normal browser fetch would hit CORS.</p>
+          <div class="tool-grid two"><input class="tool-input" id="netUrl" value="https://example.com" placeholder="https://…"><select class="tool-select" id="netMethod"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select></div>
+          <textarea class="tool-textarea" id="netBody" placeholder="Optional request body"></textarea>
+          <div class="tool-actions"><button class="primary" id="netRun">Fetch</button></div>
+          <div class="tool-output" id="netOutput">Ready.</div>
+        </section>
+        <section class="tool-panel hidden" data-tool-panel="account">
+          <h3>Account</h3><p>The sign-in button is deliberately isolated from every other tool. It calls Puter's documented website authentication only from the user's click.</p>
+          <div id="accountUser" class="tool-user"><div class="tool-avatar">?</div><div class="tool-user-main"><b>Not signed in</b><span>Sign in to use account-backed tools.</span></div></div>
+          <div class="tool-actions"><button class="primary" id="accountSignIn">Sign in</button><button class="mini" id="accountRefresh">Refresh</button><button class="mini" id="accountSignOut">Sign out</button></div>
+          <div class="tool-output" id="accountOutput">Ready.</div>
+        </section>
+      </div>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -410,7 +494,166 @@ document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{
 $("renameSave").onclick=saveRename;
 $("renameInput").addEventListener("keydown",e=>{if(e.key==="Enter")saveRename()});
 
-load();renderChats();render();loadModels();
+
+// ===== Isolated Puter tools =====
+function toolOut(id,value){
+  const el=$(id); if(!el)return;
+  if(value instanceof HTMLElement){el.innerHTML="";el.appendChild(value);return}
+  el.textContent=typeof value==="string"?value:JSON.stringify(value,null,2);
+}
+function openTools(){ $("toolsOverlay").classList.add("open"); }
+function setTool(name){
+  document.querySelectorAll(".tool-tab").forEach(b=>b.classList.toggle("active",b.dataset.tool===name));
+  document.querySelectorAll("[data-tool-panel]").forEach(p=>p.classList.toggle("hidden",p.dataset.toolPanel!==name));
+}
+async function refreshAuth(){
+  try{
+    const signed=!!puter.auth.isSignedIn();
+    const btn=$("authBtn");
+    const panel=$("accountUser");
+    if(signed){
+      let user=null; try{user=await puter.auth.getUser()}catch{}
+      const name=user?.username||user?.name||user?.email||"Puter account";
+      btn.textContent=name.length>18?name.slice(0,16)+"…":name;
+      panel.innerHTML='<div class="tool-avatar">✓</div><div class="tool-user-main"><b>'+esc(name)+'</b><span>Signed in with Puter</span></div>';
+      return true;
+    }
+    btn.textContent="Sign in";
+    panel.innerHTML='<div class="tool-avatar">?</div><div class="tool-user-main"><b>Not signed in</b><span>Sign in to use account-backed tools.</span></div>';
+    return false;
+  }catch(e){$("authBtn").textContent="Sign in";return false}
+}
+async function signInFromClick(){
+  const btn=$("authBtn");
+  try{
+    btn.disabled=true;btn.textContent="Opening…";
+    await puter.auth.signIn();
+    toast("Signed in to Puter");
+    $("accountOutput").textContent="Signed in successfully.";
+    await refreshAuth();
+  }catch(e){
+    console.error("Puter sign-in failed:",e);
+    $("accountOutput").textContent="Sign-in failed: "+errorText(e);
+    toast("Puter sign-in failed");
+    await refreshAuth();
+  }finally{btn.disabled=false}
+}
+async function signOutFromClick(){
+  try{await puter.auth.signOut();toast("Signed out");$("accountOutput").textContent="Signed out.";await refreshAuth()}catch(e){$("accountOutput").textContent=errorText(e)}
+}
+async function generateVideo(test=false){
+  const prompt=$("videoPrompt").value.trim();if(!prompt)return toast("Enter a video prompt");
+  const out=$("mediaOutput");out.textContent=test?"Generating test clip…":"Generating video…";
+  try{
+    const options={seconds:Number($("videoSeconds").value)||5,size:$("videoSize").value.trim()||"1280x720",test_mode:test};
+    const video=await puter.ai.txt2vid(prompt,options);
+    video.controls=true;video.autoplay=false;video.style.width="100%";video.style.maxHeight="360px";
+    toolOut("mediaOutput",video);$("mediaOutput").insertAdjacentHTML("afterbegin","Video ready.\n");
+  }catch(e){toolOut("mediaOutput","Video error: "+errorText(e))}
+}
+async function runOCR(){
+  const file=$("ocrFile").files?.[0];if(!file)return toast("Choose an image or document");
+  toolOut("mediaOutput","Extracting text…");
+  try{const result=await puter.ai.img2txt(file);toolOut("mediaOutput",normalizeContent(result?.text??result?.content??result))}catch(e){toolOut("mediaOutput","OCR error: "+errorText(e))}
+}
+async function runTTS(){
+  const text=$("ttsText").value.trim();if(!text)return toast("Enter text");
+  if(text.length>3000)return toast("TTS text must be under 3000 characters");
+  toolOut("speechOutput","Generating audio…");
+  try{
+    const audio=await puter.ai.txt2speech(text,{provider:$("ttsProvider").value,voice:$("ttsVoice").value.trim()||undefined});
+    audio.controls=true;audio.style.width="100%";toolOut("speechOutput",audio);
+  }catch(e){toolOut("speechOutput","TTS error: "+errorText(e))}
+}
+async function listVoices(){
+  toolOut("speechOutput","Loading voices…");
+  try{const voices=await puter.ai.txt2speech.listVoices({provider:$("ttsProvider").value});toolOut("speechOutput",voices)}catch(e){toolOut("speechOutput","Voice list error: "+errorText(e))}
+}
+async function runSTT(){
+  const file=$("sttFile").files?.[0];if(!file)return toast("Choose an audio file");
+  toolOut("speechOutput","Transcribing…");
+  try{const result=await puter.ai.speech2txt(file);toolOut("speechOutput",normalizeContent(result?.text??result?.content??result))}catch(e){toolOut("speechOutput","STT error: "+errorText(e))}
+}
+async function runS2S(){
+  const file=$("s2sFile").files?.[0];if(!file)return toast("Choose an audio file");
+  toolOut("speechOutput","Changing voice…");
+  try{
+    const audio=await puter.ai.speech2speech(file,{voice:"21m00Tcm4TlvDq8ikWAM"});
+    audio.controls=true;audio.style.width="100%";toolOut("speechOutput",audio);
+  }catch(e){toolOut("speechOutput","Voice conversion error: "+errorText(e))}
+}
+async function cloudWrite(){
+  const path=$("cloudPath").value.trim(),file=$("cloudFile").files?.[0],text=$("cloudText").value;
+  if(!path)return toast("Enter a path");
+  try{const result=await puter.fs.write(path,file||text,{createMissingParents:true,dedupeName:!!file});toolOut("cloudOutput",result)}catch(e){toolOut("cloudOutput","Write error: "+errorText(e))}
+}
+async function cloudRead(){
+  const path=$("cloudPath").value.trim();if(!path)return toast("Enter a path");
+  try{const blob=await puter.fs.read(path);toolOut("cloudOutput",await blob.text())}catch(e){toolOut("cloudOutput","Read error: "+errorText(e))}
+}
+async function cloudDelete(){
+  const path=$("cloudPath").value.trim();if(!path)return toast("Enter a path");
+  if(!confirm("Delete "+path+" from your Puter storage?"))return;
+  try{await puter.fs.delete(path);toolOut("cloudOutput","Deleted "+path)}catch(e){toolOut("cloudOutput","Delete error: "+errorText(e))}
+}
+async function cloudList(){
+  const path=$("cloudPath").value.trim()||".";
+  try{const result=await puter.fs.readdir(path);toolOut("cloudOutput",result)}catch(e){toolOut("cloudOutput","List error: "+errorText(e))}
+}
+async function cloudUpload(){
+  const file=$("cloudFile").files?.[0];if(!file)return toast("Choose a file");
+  try{const result=await puter.fs.upload(file);toolOut("cloudOutput",result)}catch(e){toolOut("cloudOutput","Upload error: "+errorText(e))}
+}
+async function kvSet(){
+  const key=$("kvKey").value.trim();if(!key)return toast("Enter a key");
+  let value=$("kvValue").value;try{value=JSON.parse(value)}catch{}
+  try{await puter.kv.set(key,value);toolOut("kvOutput","Saved.")}catch(e){toolOut("kvOutput","Set error: "+errorText(e))}
+}
+async function kvGet(){
+  const key=$("kvKey").value.trim();if(!key)return toast("Enter a key");
+  try{toolOut("kvOutput",await puter.kv.get(key))}catch(e){toolOut("kvOutput","Get error: "+errorText(e))}
+}
+async function kvDelete(){
+  const key=$("kvKey").value.trim();if(!key)return toast("Enter a key");
+  try{await puter.kv.del(key);toolOut("kvOutput","Deleted.")}catch(e){toolOut("kvOutput","Delete error: "+errorText(e))}
+}
+async function kvList(){
+  try{toolOut("kvOutput",await puter.kv.list(true))}catch(e){toolOut("kvOutput","List error: "+errorText(e))}
+}
+async function networkRun(){
+  const url=$("netUrl").value.trim();if(!/^https?:\/\//i.test(url))return toast("Use an http(s) URL");
+  const method=$("netMethod").value;toolOut("netOutput","Fetching…");
+  try{
+    const options={method};const body=$("netBody").value;if(body&&method!=="GET")options.body=body;
+    const response=await puter.net.fetch(url,options);const text=await response.text();
+    toolOut("netOutput","HTTP "+response.status+"\n\n"+text.slice(0,20000));
+  }catch(e){toolOut("netOutput","Network error: "+errorText(e))}
+}
+$("toolsBtn").onclick=openTools;
+$("authBtn").onclick=signInFromClick;
+$("accountSignIn").onclick=signInFromClick;
+$("accountSignOut").onclick=signOutFromClick;
+$("accountRefresh").onclick=async()=>{await refreshAuth();$("accountOutput").textContent="Account status refreshed."};
+document.querySelectorAll(".tool-tab").forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
+$("generateVideo").onclick=()=>generateVideo(false);
+$("testVideo").onclick=()=>generateVideo(true);
+$("runOCR").onclick=runOCR;
+$("runTTS").onclick=runTTS;
+$("listVoices").onclick=listVoices;
+$("runSTT").onclick=runSTT;
+$("runS2S").onclick=runS2S;
+$("cloudWrite").onclick=cloudWrite;
+$("cloudRead").onclick=cloudRead;
+$("cloudDelete").onclick=cloudDelete;
+$("cloudList").onclick=cloudList;
+$("cloudUpload").onclick=cloudUpload;
+$("kvSet").onclick=kvSet;
+$("kvGet").onclick=kvGet;
+$("kvDelete").onclick=kvDelete;
+$("kvList").onclick=kvList;
+$("netRun").onclick=networkRun;
+
+load();renderChats();render();loadModels();refreshAuth();
 </script>
 </body>
 </html>
