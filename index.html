@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css">
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/lib/highlight.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
 <style>
 :root{
   --bg:#08090c;--panel:#0e1117;--panel2:#151922;--panel3:#1b202b;--border:#252b36;
@@ -356,16 +356,18 @@ function normalizeContent(content){
   return content?.text||content?.content||"";
 }
 function protectMathAndCode(source){
-  const protectedParts=[];
-  const stash=value=>{const id="\\uE000"+protectedParts.length+"\\uE001";protectedParts.push(value);return id};
-  source=source.replace(/(^|\\n)(\\`\\`\\`[\\s\\S]*?\\`\\`\\`)(?=\\n|$)/g,(m,start,block)=>start+stash(block));
-  source=source.replace(/(\\`[^\\`\\n]+\\`)/g,match=>stash(match));
+  const codeParts=[],mathParts=[];
+  const stashCode=value=>{const id="\uE000C"+codeParts.length+"\uE001";codeParts.push(value);return id};
+  const stashMath=value=>{const id="\uE000M"+mathParts.length+"\uE001";mathParts.push(value);return id};
+  source=source.replace(/(^|\n)(\`\`\`[\s\S]*?\`\`\`)(?=\n|$)/g,(m,start,block)=>start+stashCode(block));
+  source=source.replace(/(\`[^\`\n]+\`)/g,match=>stashCode(match));
   if(window.katex){
-    source=source.replace(/\\$\\$([\\s\\S]+?)\\$\\$/g,(_,expr)=>stash('<div class="katex-display">'+katex.renderToString(expr,{displayMode:true,throwOnError:false})+'</div>'));
-    source=source.replace(/\\$([^$\\n]+?)\\$/g,(_,expr)=>stash(katex.renderToString(expr,{displayMode:false,throwOnError:false})));
+    source=source.replace(/\$\$([\s\S]+?)\$\$/g,(_,expr)=>stashMath('<div class="katex-display">'+katex.renderToString(expr,{displayMode:true,throwOnError:false})+'</div>'));
+    source=source.replace(/\$([^$\n]+?)\$/g,(_,expr)=>stashMath(katex.renderToString(expr,{displayMode:false,throwOnError:false})));
   }
+  source=source.replace(/\uE000C(\d+)\uE001/g,(_,i)=>codeParts[Number(i)]??"");
   return {source,restore(html){
-    return html.replace(/\\uE000(\\d+)\\uE001/g,(_,i)=>protectedParts[Number(i)]??"");
+    return html.replace(/\uE000M(\d+)\uE001/g,(_,i)=>mathParts[Number(i)]??"");
   }};
 }
 function renderMarkdown(text){
